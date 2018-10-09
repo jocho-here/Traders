@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+    database:
+        image: mysql:5.7
+        ports:
+            - "3306:3306"
+        environment:
+            - MYSQL_USER=admin
+            - MYSQL_PASSWORD=adminpw1
+            - MYSQL_DATABASE=tradersdb
+            - MYSQL_ROOT_PASSWORD=adminpw1
+            - MYSQL_ROOT_HOST=% # allows non-docker accesses
