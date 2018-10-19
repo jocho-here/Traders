@@ -1,0 +1,44 @@
+body {
+  box-sizing: border-box;
+  cursor: default;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, 'Lucida Grande', sans-serif;
+  line-height: 1.4;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  overflow-y: scroll;
+  text-rendering: optimizeLegibility;
+  background: #4D6AFF;
+  color: #fef;
+  background-image:
+   url("https://www.transparenttextures.com/patterns/cutcube.png");
+}
+
+.field{
+  background: #448;
+  
+}
+
+.uPanel{
+  background: #009933;
+  padding: 10px 10px 10px;
+  border: 3px solid #8f224a;
+  border-radius: 25px;
+}
+
+.submission {
+  border-radius: 25px;
+  background-color : #00FFAA;
+  border: 3px solid #AAFF00;
+  color: #8f220a;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: 0.3s;
+  font-family: "times";
+  font-size: 17px;
+  line-height: 1;
+  padding: 15px 15px 10px;
+  text-transform: uppercase;
+  -webkit-transition: background 0.5s, color 0.2s;
+  transition: background 0.5s, color 0.2s;
+}
+
+.submission:hover {opacity: 1}
