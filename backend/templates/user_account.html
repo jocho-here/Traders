@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>ACCNAME </title> <!-- Needs to be dynamic somehow...-->
+  <title>ACCNAME</title> <!-- Needs to be dynamic somehow...-->
   
   
   
@@ -22,17 +22,15 @@
 <nav align = right class="filler">
  <div align = left class = "title"> Traders Capital </div>
  <div align = right class = "title"> Username </div> <!-- Needs to be dynamic somehow...-->
-<form name="accountList" method="POST" action="{{ url_for('pages.user_profile') }}">
-	<fieldset>
-		<label for="account"> View Account </label>
-		<select name="account" id="account">
-			<option disabled selected value> -- select an option -- </option>
-		</select>
-	</fieldset>
-</form>
-	
- &nbsp;&nbsp;&nbsp;&nbsp;
- <a class="btn btn-secondary2" href="/js/">History</a>                    &nbsp;&nbsp;&nbsp;&nbsp;
+ <div align = right class = "title"> Account </div> <!-- Needs to be dynamic somehow...-->
+	<form name="accountList" method="POST" action="{{ url_for('pages.user_profile') }}">
+		<fieldset>
+			<label for="account"> View Account </label>
+			<select name="account" id="account">
+				<option disabled selected value> -- select an option -- </option>
+			</select>
+		</fieldset>
+	</form>
  <a class="btn btn-secondary" href="/login">Log Out</a>
 </nav>
 
