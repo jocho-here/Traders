@@ -14,7 +14,6 @@ def start():
 def user_login():
 	if request.method == 'POST':
 		info = request.form
-		print(info)
 		if not all(k in info for k in ['userName', 'passWord']):
 			return 'Cannot find username and password key'
 		user, pswd = info['userName'], info['passWord']
@@ -26,11 +25,25 @@ def user_login():
 
 	return render_template("login_page.html", logged="true")
 
-@pages.route('/profile')
+@pages.route('/profile', methods=['GET', 'POST'])
 def user_profile():
-	uid = request.args.get('uid')
-	if not uid:
-		return "usage: </profile?uid=INT>"
-	return render_template("user_index.html", logged="true")
-	return 'user_id: ' + str(uid)
+	if request.method == 'GET':
+		print(request)
+		uid = request.args.get('uid')
+		if not uid:
+			return "usage: </profile?uid=INT>"
+		return render_template("user_index.html", logged="true") #Not sure if this is the right thing to do.. The line below was the original.
+		return 'user_id: ' + str(uid)
+	elif request.method == 'POST':
+		info = request.form
+		accID = info['account']
+		return redirect(url_for('pages.user_account', accID=accID))
+
+
+@pages.route('/account')
+def user_account():
+	accID = request.args.get('accID')
+	if not accID:
+		return "usage: </account?accID=INT"
+	return render_template("user_account.html")
 	
