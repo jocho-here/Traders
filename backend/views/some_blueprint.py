@@ -14,6 +14,7 @@ def start():
 def user_login():
 	if request.method == 'POST':
 		info = request.form
+		print(info)
 		if not all(k in info for k in ['userName', 'passWord']):
 			return 'Cannot find username and password key'
 		user, pswd = info['userName'], info['passWord']
@@ -30,5 +31,6 @@ def user_profile():
 	uid = request.args.get('uid')
 	if not uid:
 		return "usage: </profile?uid=INT>"
+	return render_template("user_index.html", logged="true")
 	return 'user_id: ' + str(uid)
 	
