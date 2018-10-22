@@ -1,7 +1,7 @@
 from flask import Flask
 
 from utils import check_tables
-from views.some_blueprint import pages
+from views.accounts import pages
 
 
 # This is where we start our backend app
