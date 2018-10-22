@@ -1,5 +1,6 @@
 from flask import Flask
 
+from utils import check_tables
 from views.some_blueprint import pages
 
 
@@ -11,6 +12,5 @@ app.register_blueprint(pages)
 
 
 if __name__ == '__main__':
-    #db_checks()
+    check_tables()
     app.run(debug=True, host='localhost', port=8080)
-    #db_close()
