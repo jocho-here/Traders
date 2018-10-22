@@ -31,12 +31,15 @@ def get_req_data():
 #### DB related
 
 # Any query that requires changes in the DB
-def setter_db(sql):
+def setter_db(sql, data=None):
     conn = get_conn()
 
     try:
         with conn.cursor() as cursor:
-            cursor.execute(sql)
+            if data != None:
+                cursor.execute(sql, data)
+            else:
+                cursor.execute(sql)
         conn.commit()
     except Exception as e:
         print(e)
@@ -45,13 +48,16 @@ def setter_db(sql):
         conn.close()
 
 # Any query that does not require any changes in the DB
-def getter_db(sql):
+def getter_db(sql, data=None):
     conn = get_conn()
     result = None
 
     try:
         with conn.cursor() as cursor:
-            cursor.execute(sql)
+            if data != None:
+                cursor.execute(sql, data)
+            else:
+                cursor.execute(sql)
             result = cursor.fetchall()
     except Exception as e:
         print(e)
@@ -63,19 +69,19 @@ def getter_db(sql):
 
 # Create Users table
 def create_users_table():
-    setter_db(raw_queries.create_users)
+    setter_db(raw_queries.create_users())
     
 # Create Accounts table
 def create_accounts_table():
-    setter_db(raw_queries.create_accounts)
+    setter_db(raw_queries.create_accounts())
 
 # Create ExchangeRates table
 def create_exchangerates_table():
-    setter_db(raw_queries.create_exchangerates)
+    setter_db(raw_queries.create_exchangerates())
 
 # Create Positions table
 def create_positions_table():
-    setter_db(raw_queries.create_positions)
+    setter_db(raw_queries.create_positions())
 
 # Getting the MySQL Connection
 def get_conn():
