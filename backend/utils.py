@@ -69,11 +69,11 @@ def getter_db(sql, data=None):
 
 # Create Users table
 def create_users_table():
-    setter_db(raw_queries.create_users())
+    setter_db(raw_queries.create_users)
     
 # Create Accounts table
 def create_accounts_table():
-    setter_db(raw_queries.create_accounts())
+    setter_db(raw_queries.create_accounts)
 
 # Create ExchangeRates table
 def create_exchangerates_table():

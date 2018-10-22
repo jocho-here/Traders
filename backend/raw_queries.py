@@ -1,32 +1,28 @@
 # Place to keep the raw queries
 
 ## Table creating raw queries
-def create_users():
-    sql = """
-          CREATE TABLE Users (
-              id INT NOT NULL AUTO_INCREMENT,
-              email VARCHAR(256) NOT NULL UNIQUE,
-              username VARCHAR(256) NOT NULL UNIQUE,
-              password VARCHAR(256) NOT NULL,
-              last_login DATETIME NOT NULL,
-              PRIMARY KEY (id)
-          )
-          """
-    return sql
+create_users = """
+               CREATE TABLE Users (
+                   id INT NOT NULL AUTO_INCREMENT,
+                   email VARCHAR(256) NOT NULL UNIQUE,
+                   username VARCHAR(256) NOT NULL UNIQUE,
+                   password VARCHAR(256) NOT NULL,
+                   last_login DATETIME NOT NULL,
+                   PRIMARY KEY (id)
+               )
+               """
 
-def create_accounts():
-    sql = """
-          CREATE TABLE Accounts (
-              id INT NOT NULL UNIQUE,
-              user_id INT NOT NULL,
-              account_name VARCHAR(256) NOT NULL,
-              open_date DATETIME NOT NULL,
-              close_date DATETIME,
-              PRIMARY KEY (user_id, account_name),
-              FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
-          )
-          """
-    return sql
+create_accounts = """
+                  CREATE TABLE Accounts (
+                  id INT NOT NULL UNIQUE,
+                  user_id INT NOT NULL,
+                  account_name VARCHAR(256) NOT NULL,
+                  open_date DATETIME NOT NULL,
+                  close_date DATETIME,
+                  PRIMARY KEY (user_id, account_name),
+                  FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
+                  )
+                  """
 
 def create_positions():
     sql = """
@@ -77,3 +73,13 @@ def get_user_id_from_email():
           SELECT id FROM Users WHERE email = %s
           """
     return sql
+
+def get_all_users():
+    sql = """
+          SELECT * FROM Users
+          """
+    return sql
+
+
+## Account related raw queries
+#def 
