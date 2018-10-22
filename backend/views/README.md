@@ -96,7 +96,7 @@ This API endpoint exists just for testing.
 
 ## Account Related
 
-## New Sub-account Creation [/{user_id}/new_account]
+## New Sub-account Creation [/new_account?uid=<INT>]
 
 ### Create a sub-account under a user [POST]
 
