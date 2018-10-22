@@ -27,4 +27,4 @@ Our functionality is divided into two main sections, the webpage and the user AP
     - Users can open new accounts or create old ones.
 
 ## DB Schema 
-![DB Schema](https://i.imgur.com/tLnww9H.png)
+![DB Schema](./traders-DB-schema.png)
