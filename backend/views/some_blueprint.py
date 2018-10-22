@@ -1,9 +1,25 @@
 from flask import jsonify, Blueprint, render_template, request, redirect, url_for
-
+import MySQLdb, os, time
 
 # This is where we create API endpoints for interacting with frontend
 
 pages = Blueprint('pages', __name__)
+accounts = Blueprint('accounts', __name__)
+
+USER = os.environ.get('cs411traders_user')
+PSWD = os.environ.get('cs411traders_pswd')
+db = MySQLdb.connect("localhost", USER, PSWD, "cs411traders_Traders")
+cursor = db.cursor()
+
+
+def execute_insert(q):
+	try:
+		cursor.execute(q)
+		db.commit()
+		return None
+	except (MySQLdb.Error, MySQLdb.Warning) as e:
+		db.rollback()
+		return err
 
 @pages.route('/')
 def start():
@@ -39,11 +55,67 @@ def user_profile():
 		accID = info['account']
 		return redirect(url_for('pages.user_account', accID=accID))
 
-
+"""
 @pages.route('/account')
 def user_account():
 	accID = request.args.get('accID')
 	if not accID:
 		return "usage: </account?accID=INT"
 	return render_template("user_account.html")
+"""	
+	
+@accounts.route('/new_account', methods=['POST'])
+def create_new_account():
+	ret = {"status":False, 
+		"message":"Successfully created a new sub-account", 		"user_email":None, "account_name":None, "account_id": None}
+	uid = request.args.get('uid')
+	if not uid:
+		ret["message"] = "usage: </new_account?uid=INT>"
+		return jsonify(ret)
+	uid = int(uid)
+	if "name" not in reqeust.form:
+		ret["message"] = "Received data missing name"
+		return 	jsonify(ret)
+	name = request.form["name"]
+	date = time.strftime('%Y-%m-%d')
+	query = '''Insert into Accounts (
+			account_name, open_date, uid) values (
+			"%s", "%s", %d) ''' %(name, date, uid)
+	err = execute_insert(query)
+	if err:
+		ret["message"] = err
+		return ret
+	accountid = cursor.lastrowid
+	query = 'SELECT email FROM Users where id=%d' %uid
+	cursor.execute(query)
+	data = cursor.fetchone()
+	if len(data) == 0:
+		ret["message"] = 'No user with such id'
+		return jsonify(ret)
+	ret["user_email"] = data[0]
+	ret["account_id"] = accountid
+	ret["status"] = True
+	return jsonify(ret)	
+	
+@accounts.route('/account', methods=['GET', 'DELETE'])
+def get_account_info():
+	ret = {"status":False, 
+			"message":"Successfully deleted a user",
+			"deleted_user_email":None}
+	accid = request.args.get("accId")
+	if not accid:
+		ret["message"] = "Usage: </account?accId=INT>"
+		return jsonify(ret)
+	accid = int (accid)
+	if request.method == 'GET':
+		return None
+	elif request.method == 'DELETE':
+		
+		deleted = cursor.execute('DELETE FROM Accounts WHERE ID=%d' &accid)
+		if deleted == 0:
+			ret["message"] = "Account Id does not exist"
+			return jsonify(ret)
+		return None
+		
+	
 	
