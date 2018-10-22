@@ -11,10 +11,11 @@
 
 + Request Body (application/json)
 
-		{
-			"email": "someone@email.com",
-			"password": "somepassword"
-		}
+        {
+            "email": "someone@email.com",
+            "username": "someone",
+            "password": "somepassword"
+        }
 
 + Response 200 (application/json)
 
@@ -29,18 +30,18 @@
 
 + Request Body (application/json)
 
-		{
-			"email": "someone@email.com",
-			"password": "somepassword"
-		}
+        {
+            "email": "someone@email.com",
+            "password": "somepassword"
+        }
 
 + Response 200 (application/json)
 
-		{
-			"status": true,
-			"message": "Successfully deleted a user",
-			"deleted_user_email": "someone@email.com"
-		}
+        {
+            "status": true,
+            "message": "Successfully deleted a user",
+            "deleted_user_email": "someone@email.com"
+        }
 
 ### Get all users [GET]
 
@@ -48,34 +49,34 @@ This API endpoint exists just for testing.
 
 + Response 200 (application/json)
 
-		{
-			"status": true,
-			"users": [
-				{
-					"user_email": "someone@email.com",
-					"user_id": 123,
-					"accounts": [
-						{
-							"account_name": "someaccount1"
-						},
-						{
-							"account_name": "someaccount2"
-						},
-						{
-							"account_name": "someaccount3"
-						}
-					]
-				}
-			]
-		}
+        {
+            "status": true,
+            "users": [
+                {
+                    "user_email": "someone@email.com",
+                    "user_id": 123,
+                    "accounts": [
+                        {
+                            "account_name": "someaccount1"
+                        },
+                        {
+                            "account_name": "someaccount2"
+                        },
+                        {
+                            "account_name": "someaccount3"
+                        }
+                    ]
+                }
+            ]
+        }
 
-## User Signin [/signin]
+## User Sign in [/signin]
 ### Sign in a user [POST]
 
 + Request Body (application/json)
 
         {
-            "username": "someone",
+            "email": "someone@email.com",
             "password": "somepassword"
         }
 
@@ -101,19 +102,19 @@ This API endpoint exists just for testing.
 
 + Request Body (application/json)
 
-		{
-			"account_name": "someaccountname"
-		}
+        {
+            "account_name": "someaccountname"
+        }
 
 + Response 200 (application/json)
 
-		{
-			"status": true,
-			"message": "Successfully created a new sub-account",
-			"user_email": "someone@email.com",
-			"account_name": "someaccountname",
-			"account_id": 321
-		}
+        {
+            "status": true,
+            "message": "Successfully created a new sub-account",
+            "user_email": "someone@email.com",
+            "account_name": "someaccountname",
+            "account_id": 321
+        }
 
 
 ## Sub-account [/{user_id}/{account_id}]
@@ -122,27 +123,27 @@ This API endpoint exists just for testing.
 
 + Response 200 (application/json)
 
-		{
-			"status": true,
-			"user_email": "someone@email.com",
-			"user_id": 123,
-			"account_name": "someaccountname",
-			"open_date": 2018-10-10 23:23:23,
-			"positions": [
-				...
-			]
-		}
+        {
+            "status": true,
+            "user_email": "someone@email.com",
+            "user_id": 123,
+            "account_name": "someaccountname",
+            "open_date": 2018-10-10 23:23:23,
+            "positions": [
+                ...
+            ]
+        }
 
 ### Delete account [DELETE]
 
 + Response 200 (application/json)
 
-		{
-			"status": true,
-			"message": "Successfully delete the account",
-			"deleted_account_name": "someaccountname",
-			"close_date": 2018-10-10 24:24:24
-		}
+        {
+            "status": true,
+            "message": "Successfully delete the account",
+            "deleted_account_name": "someaccountname",
+            "close_date": 2018-10-10 24:24:24
+        }
 
 
 ## Position Related
@@ -190,13 +191,13 @@ positions that are with certain status, make a request to `/{user_id}/{account_i
 
 + Request Body (application/json)
 
-		{
-			"currency_from": "usd",
-			"currency_to": "gbp",
+        {
+            "currency_from": "usd",
+            "currency_to": "gbp",
             "time": 2018-10-10 11:11:11,
             "position_type": "short",
             "volume": 123.3
-		}
+        }
 
 + Response 200 (application/json)
 

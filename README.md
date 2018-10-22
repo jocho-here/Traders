@@ -26,5 +26,5 @@ Our functionality is divided into two main sections, the webpage and the user AP
 - Send open/close accounts
     - Users can open new accounts or create old ones.
 
-## ER Design
-![ER Design](https://i.imgur.com/tLnww9H.png)
+## DB Schema 
+![DB Schema](https://i.imgur.com/tLnww9H.png)
