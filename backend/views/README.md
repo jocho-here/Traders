@@ -53,19 +53,16 @@ This API endpoint exists just for testing.
             "status": true,
             "users": [
                 {
-                    "user_email": "someone@email.com",
+                    "email": "someone@email.com",
+                    "username": "someone",
                     "user_id": 123,
-                    "accounts": [
-                        {
-                            "account_name": "someaccount1"
-                        },
-                        {
-                            "account_name": "someaccount2"
-                        },
-                        {
-                            "account_name": "someaccount3"
-                        }
-                    ]
+                    "last_login": 2018-10-10 11:11:11
+                },
+                {
+                    "email": "someoneelse@email.com",
+                    "username": "someoneelse",
+                    "user_id": 1234,
+                    "last_login": 2018-10-10 11:11:11
                 }
             ]
         }
