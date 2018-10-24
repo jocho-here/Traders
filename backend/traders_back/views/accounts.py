@@ -62,7 +62,7 @@ def create_new_account():
 		ret["message"] = err
 		return ret
 	query = 'SELECT email FROM Users where id=%d'
-	data = utils.dict_getter_db(query, (uid))[0]
+	data = utils.dict_getter_db(query, (uid))['result'][0]
 	if len(data) == 0:
 		ret["message"] = 'No user with such id'
 		return jsonify(ret)
@@ -79,7 +79,7 @@ def sub_account(uid, accid):
 	    query = '''SELECT U.email, A.account_name, A.open_date
 		        FROM Users U JOIN Accounts A ON U.id=A.user_id
 		        WHERE U.id=%d AND A.id=%d'''
-	    data = utils.getter_db(query, (uid, accid))
+	    data = utils.getter_db(query, (uid, accid))['result']
 	    if not data:
 		    ret["message"] = 'Account id does cooparate with User id'
 		    return jsonify(ret)

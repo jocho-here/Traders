@@ -32,6 +32,7 @@ def get_req_data():
 
 # Any query that requires changes in the DB
 def setter_db(sql, data=None):
+    rtn_val = {'status':False}
     conn = get_conn()
 
     try:
@@ -41,16 +42,20 @@ def setter_db(sql, data=None):
             else:
                 cursor.execute(sql)
         conn.commit()
+        rtn_val['status'] = True
     except Exception as e:
         print(e)
+        rtn_val['message'] = e
         conn.rollback()
     finally:
         conn.close()
 
+    return rtn_val
+
 # Any query that does not require any changes in the DB
 def getter_db(sql, data=None):
     conn = get_conn()
-    result = None
+    result = {'status':False}
 
     try:
         with conn.cursor() as cursor:
@@ -58,9 +63,12 @@ def getter_db(sql, data=None):
                 cursor.execute(sql, data)
             else:
                 cursor.execute(sql)
-            result = cursor.fetchall()
+            result['result'] = cursor.fetchall()
+            result['status'] = True
     except Exception as e:
         print(e)
+        rtn_val['message'] = e
+        ################ APPLY THIS MECHANISM TO THE FUNCTIONS
         result = None
     finally:
         conn.close()
@@ -77,11 +85,11 @@ def create_accounts_table():
 
 # Create ExchangeRates table
 def create_exchangerates_table():
-    setter_db(raw_queries.create_exchangerates())
+    setter_db(raw_queries.create_exchangerates)
 
 # Create Positions table
 def create_positions_table():
-    setter_db(raw_queries.create_positions())
+    setter_db(raw_queries.create_positions)
 
 # Getting the MySQL Connection
 def get_conn():
@@ -98,7 +106,7 @@ def check_tables():
     sql = """
           SHOW TABLES
           """
-    result = [x['Tables_in_tradersdb'] for x in getter_db(sql)]
+    result = [x['Tables_in_tradersdb'] for x in getter_db(sql)['result']]
 
     for table in tables:
         if table not in result:

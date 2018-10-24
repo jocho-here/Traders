@@ -10,10 +10,10 @@ def user_manipulation():
     rtn_val = {}
     req = utils.get_req_data()
 
-    # New user sign up
     if request.method == 'POST':
+        # New user sign up
         if 'email' in req and 'username' in req and 'password' in req:
-            rtn_val = manage.sign_up(req['email'], req['username'], req['password'])
+            result = manage.sign_up(req['email'], req['username'], req['password'])
             rtn_val['status'] = True
             rtn_val['message'] = "Successfully signed up"
             rtn_val['email'] = email
@@ -21,9 +21,14 @@ def user_manipulation():
             rtn_val['status'] = False
             rtn_val['message'] = "Request is missing either email, username, or password"
     elif request.method == 'GET':
-        print('GET')
-        # Open this up just for testing
+        # This is just for testing purpose
+        rtn_val = manage.get_all_users()
+        rtn_val['status'] = True
     elif request.method == 'DELETE':
-        print('DELETE')
+        # Delete a user
+        if 'email' in req and 'password' in req:
+            result = manage.delete_user(req['email'], req['password'])
+            ####################################################
+            
 
     return rtn_val
