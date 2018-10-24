@@ -32,7 +32,7 @@
 
         {
             "email": "someone@email.com",
-            "password": "somepassword"
+            "id": 111
         }
 
 + Response 200 (application/json)
