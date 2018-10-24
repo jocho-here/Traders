@@ -87,5 +87,18 @@ DELETE FROM Users
 WHERE email = %s
 """
 
+feed_test_data = [
+"""
+INSERT INTO Users (
+email, username, password, last_login) values (
+'root@test.com', 'root', '1234', '2018-10-10 11:11:11')
+""",
+"""
+INSERT INTO Accounts (
+user_id, account_name, open_date) values (
+1, 'root_account', '2018-10-10 11:11:11')
+"""
+]
+
 ## Account related raw queries
 #def 

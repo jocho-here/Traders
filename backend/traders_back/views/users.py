@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, Blueprint
 
 import traders_back.utils as utils
 import traders_back.manage as manage
@@ -40,16 +40,30 @@ def get_user_info(uid):
         query += ' WHERE id=%d' %int(uid)
     ret = utils.getter_db(query)
     data = ret.pop('result')
-    ret['users'] = []
-    for e in data:
-        user = {}
-        user['email'] = data[0]
-        user['username'] = data[1]
-        user['user_id'] = data[2]
-        user['last_login'] = data[3]
-        ret['users'].append(user)
+    ret['users'] = data
     return jsonify(ret)
         
-        
-        
-        
+@users.route('/signin', methods=['POST'])
+def user_signin():
+    req = utils.get_req_data()
+    email = req['email']
+    pswd = req['password']
+    query = '''SELECT U.id uid, A.id accid FROM Users U LEFT JOIN Accounts A ON
+            U.id=A.user_id WHERE U.email=%s AND U.password=%s
+            '''
+    ret = utils.getter_db(query, (email, pswd))
+    accounts = ret.pop('result')
+    if len(accounts) == 0:
+        ret['status'] = False
+        ret['message'] = 'Sign in authentication failed. Please check email or password'
+        return jsonify(ret)
+    ret['user_id'] = accounts[0]['uid']
+    accounts = [i['accid'] for i in accounts]
+    ret['account_ids'] = accounts
+    return jsonify(ret)
+          
+    
+    
+    
+    
+    

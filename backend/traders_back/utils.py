@@ -101,6 +101,12 @@ def get_conn():
                            charset='utf8mb4',
                            cursorclass=pymysql.cursors.DictCursor)
 
+
+# feed some of data for testing, add more if needed
+def fill_in_test_data():
+    for q in raw_queries.feed_test_data:
+        setter_db(q)
+
 # Creating tables if not found
 def check_tables():
     print("check tables")
@@ -113,6 +119,7 @@ def check_tables():
         if table not in result:
             print("{} not in DB; resetting the whole DB")
             reset_db()
+            fill_in_test_data()
             break
 
     return result
