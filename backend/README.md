@@ -17,8 +17,9 @@
         - This boots up a virtual environment shell
     - `pipenv install pip==18.0`
         - This downgrades the pip, fixing a bug with the version 18.1
-    - `pipenv install .`
+    - `pipenv install --dev -e .`
         - Installing all the requirements by `Pipfile`
+        - This also packagerizes `traders_back`
 2. Install `docker` and `docker-compose`
     - Google :)
 
