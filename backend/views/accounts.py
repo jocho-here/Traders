@@ -1,31 +1,9 @@
 from flask import jsonify, Blueprint, render_template, request, redirect, url_for
-import MySQLdb, os, time
+import traders_back.utils as utils
 
-# This is where we create API endpoints for interacting with frontend
-
-pages = Blueprint('pages', __name__)
 accounts = Blueprint('accounts', __name__)
 
-USER = os.environ.get('cs411traders_user')
-PSWD = os.environ.get('cs411traders_pswd')
-db = MySQLdb.connect("localhost", USER, PSWD, "cs411traders_Traders")
-cursor = db.cursor()
-
-
-def execute_insert(q):
-	try:
-		cursor.execute(q)
-		db.commit()
-		return None
-	except (MySQLdb.Error, MySQLdb.Warning) as e:
-		db.rollback()
-		return err
-
-@pages.route('/')
-def start():
-
-    return "cs411 traders"
-
+'''
 @pages.route('/login', methods=['GET', 'POST'])
 def user_login():
 	if request.method == 'POST':
@@ -54,15 +32,13 @@ def user_profile():
 		info = request.form
 		accID = info['account']
 		return redirect(url_for('pages.user_account', accID=accID))
-
-"""
 @pages.route('/account')
 def user_account():
 	accID = request.args.get('accID')
 	if not accID:
 		return "usage: </account?accID=INT"
 	return render_template("user_account.html")
-"""	
+'''
 	
 @accounts.route('/new_account', methods=['POST'])
 def create_new_account():
@@ -80,42 +56,57 @@ def create_new_account():
 	date = time.strftime('%Y-%m-%d')
 	query = '''Insert into Accounts (
 			account_name, open_date, uid) values (
-			"%s", "%s", %d) ''' %(name, date, uid)
-	err = execute_insert(query)
+			"%s", "%s", %d) ''' 
+	err, accountid = setter_db_id(query, (name, date, uid))
 	if err:
 		ret["message"] = err
 		return ret
-	accountid = cursor.lastrowid
-	query = 'SELECT email FROM Users where id=%d' %uid
-	cursor.execute(query)
-	data = cursor.fetchone()
+	query = 'SELECT email FROM Users where id=%d'
+	data = utils.dict_getter_db(query, (uid))[0]
 	if len(data) == 0:
 		ret["message"] = 'No user with such id'
 		return jsonify(ret)
-	ret["user_email"] = data[0]
+	ret["user_email"] = data['email']
 	ret["account_id"] = accountid
 	ret["status"] = True
 	return jsonify(ret)	
 	
-@accounts.route('/account', methods=['GET', 'DELETE'])
-def get_account_info():
-	ret = {"status":False, 
-			"message":"Successfully deleted a user",
-			"deleted_user_email":None}
-	accid = request.args.get("accId")
-	if not accid:
-		ret["message"] = "Usage: </account?accId=INT>"
-		return jsonify(ret)
-	accid = int (accid)
-	if request.method == 'GET':
-		return None
-	elif request.method == 'DELETE':
-		
-		deleted = cursor.execute('DELETE FROM Accounts WHERE ID=%d' &accid)
-		if deleted == 0:
-			ret["message"] = "Account Id does not exist"
-			return jsonify(ret)
-		return None
-		
 	
+@accounts.route('/<int:uid>/<int:accid>', methods=['GET', 'DELETE'])
+def sub_account(uid, accid):
+    ret = {"status":False}
+    if request.method == 'GET':
+	    query = '''SELECT U.email, A.account_name, A.open_date
+		        FROM Users U JOIN Accounts A ON U.id=A.user_id
+		        WHERE U.id=%d AND A.id=%d'''
+	    data = utils.getter_db(query, (uid, accid))
+	    if not data:
+		    ret["message"] = 'Account id does cooparate with User id'
+		    return jsonify(ret)
+	    data = data[0]
+	    ret['status'] = True
+	    ret['user_id'] = uid
+	    ret['user_email'] = data[0]
+	    ret['account_name'] = data[1]
+	    ret['open_date'] = data[2]
+	    return jsonify(ret)
+    elif request.method == 'DELETE':
+        query = '''SELECT account_name FROM Accounts 
+	             WHERE id=%d AND user_id=%d'''
+        result = getter_db(query, (accid, uid))
+        if not result:
+            ret['message'] = 'Account id does cooparate with User id'
+            return jsonify(ret)
+        ret['deleted_account_name'] = result[0][0]   
+        ret['status'] = True
+        date = time.strftime('%Y-%m-%d')
+        ret['close_date'] = date
+        ret['message'] = 'Successfully delete the account'
+        query = '''UPDATE Accounts SET close_date=%s
+                WHERE id=%d AND user_id=%d'''
+        setter_db(query, (accid, uid))
+        return jsonify(ret)
+	       
+	    
+	    
 	
