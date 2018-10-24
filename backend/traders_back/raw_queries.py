@@ -39,12 +39,14 @@ CREATE TABLE Positions (
     volume FLOAT NOT NULL,
     PRIMARY KEY (account_id, id),
     FOREIGN KEY (account_id)
-        REFERENCES Accounts(id)
+        REFERENCES Accounts(id) 
         ON DELETE CASCADE,
     FOREIGN KEY (open_rate_id)
-        REFERENCES ExchangeRates(id),
+        REFERENCES ExchangeRates(id)
+        ON DELETE CASCADE,
     FOREIGN KEY (close_rate_id)
         REFERENCES ExchangeRates(id)
+        ON DELETE CASCADE
 )
 """
 

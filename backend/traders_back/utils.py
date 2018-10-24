@@ -42,6 +42,7 @@ def setter_db(sql, data=None):
             else:
                 cursor.execute(sql)
         conn.commit()
+        rtn_val['last_insert_index'] = cursor.lastrowid
         rtn_val['status'] = True
     except Exception as e:
         print(e)
@@ -55,7 +56,7 @@ def setter_db(sql, data=None):
 # Any query that does not require any changes in the DB
 def getter_db(sql, data=None):
     conn = get_conn()
-    result = {'status':False}
+    rtn_val = {'status':False}
 
     try:
         with conn.cursor() as cursor:
@@ -63,8 +64,8 @@ def getter_db(sql, data=None):
                 cursor.execute(sql, data)
             else:
                 cursor.execute(sql)
-            result['result'] = cursor.fetchall()
-            result['status'] = True
+            rtn_val['result'] = cursor.fetchall()
+            rtn_val['status'] = True
     except Exception as e:
         print(e)
         rtn_val['message'] = e
@@ -73,7 +74,7 @@ def getter_db(sql, data=None):
     finally:
         conn.close()
 
-    return result
+    return rtn_val
 
 # Create Users table
 def create_users_table():
