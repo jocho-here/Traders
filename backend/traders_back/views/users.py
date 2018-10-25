@@ -60,6 +60,8 @@ def user_signin():
     ret['user_id'] = accounts[0]['uid']
     accounts = [i['accid'] for i in accounts]
     ret['account_ids'] = accounts
+    query = 'UPDATE Users SET last_login="%s" WHERE id=%d' %(utils.get_date_time(), ret['user_id'])
+    utils.setter_db(query)
     return jsonify(ret)
           
     

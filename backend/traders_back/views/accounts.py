@@ -48,13 +48,14 @@ def account_apis():
 def create_new_account():
     uid = int(request.args.get('uid'))
     name = utils.get_req_data()['account_name']
-    date = time.strftime('%Y-%m-%d')
     query = '''Insert into Accounts (
-        account_name, open_date, uid) values (
-        %s, %s, %d) ''' 
-    ret = utils.setter_db(query, (name, date, uid))
-    query = 'SELECT email FROM Users WHERE id=%d'
-    email = utils.getter_db(query, (uid))[0][0]
+        account_name, open_date, user_id) values (
+        %s, %s, %s) ''' 
+    ret = utils.setter_db(query, (name, utils.get_date_time(), uid))
+    if not ret['status']:
+        return jsonify(ret)
+    query = 'SELECT email FROM Users WHERE id=%s'
+    email = utils.getter_db(query, (uid))['result'][0]['email']
     ret['user_email'] = email
     ret['account_id'] = ret.pop('last_insert_index')
     return jsonify(ret)
@@ -63,25 +64,38 @@ def create_new_account():
 def sub_account(uid, accid):
     ret = {"status":False}
     if request.method == 'GET':
-	    query = '''SELECT U.email, A.account_name, A.open_date
+	    query = '''SELECT U.email, 
+	            A.account_name, A.open_date, A.close_date
 		        FROM Users U JOIN Accounts A ON U.id=A.user_id
-		        WHERE U.id=%d AND A.id=%d'''
+		        WHERE U.id=%s AND A.id=%s'''
 	    ret = utils.getter_db(query, (uid, accid))
-	    info = ret.pop('result')[0]
-	    ret['user_email'] = info[0]
-	    ret['account_name'] = info[1]
-	    ret['open_date'] = info[2]
+	    info = ret.pop('result')
+	    if len(info) == 0:
+	        ret['status'] = False
+	        ret['message'] = utils.ERR_ACCOUNT_ID
+	        return jsonify(ret)
+	    info = info[0]
+	    if info['close_date']:
+	        ret['message'] = 'Account has been closed'
+	        return jsonify(ret)
+	    ret['user_email'] = info['email']
+	    ret['account_name'] = info['account_name']
+	    ret['open_date'] = info['open_date']
 	    ret['user_id'] = uid
 	    return jsonify(ret)
     elif request.method == 'DELETE':
         query = '''SELECT account_name FROM Accounts 
-	             WHERE id=%d AND user_id=%d'''
+	             WHERE id=%s AND user_id=%s'''
         ret = utils.getter_db(query, (accid, uid))
-        data = ret.pop('result')[0]
-        ret['deleted_account_name'] = data[0]        
-        date = time.strftime('%Y-%m-%d')
+        data = ret.pop('result')
+        if len(data) == 0:
+            ret['status'] = False
+            ret['message'] = utils.ERR_ACCOUNT_ID
+            return jsonify(ret)
+        ret['deleted_account_name'] = data[0]['account_name']      
+        date = utils.get_date_time()
         ret['close_date'] = date
-        query = 'UPDATE Accounts SET close_date=%s WHERE id=%d'
+        query = 'UPDATE Accounts SET close_date=%s WHERE id=%s'
         utils.setter_db(query, (date, accid))
         return jsonify(ret)
 	       

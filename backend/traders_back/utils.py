@@ -1,5 +1,5 @@
 from flask import request
-import re, json
+import re, json, time
 import pymysql.cursors
 
 import raw_queries
@@ -9,6 +9,10 @@ import raw_queries
 # For example, checking whether tables are there and resetting them and etc.
 
 tables = ['Positions', 'Accounts', 'Users', 'ExchangeRates']
+
+# Return current time frame
+def get_date_time():
+    return time.strftime('%Y-%m-%d %H:%M:%S')
 
 # Receive request data
 def get_req_data():
@@ -46,7 +50,7 @@ def setter_db(sql, data=None):
         rtn_val['status'] = True
     except Exception as e:
         print(e)
-        rtn_val['message'] = e
+        rtn_val['message'] = str(e)
         conn.rollback()
     finally:
         conn.close()
@@ -68,9 +72,7 @@ def getter_db(sql, data=None):
             rtn_val['status'] = True
     except Exception as e:
         print(e)
-        rtn_val['message'] = e
-        ################ APPLY THIS MECHANISM TO THE FUNCTIONS
-        result = None
+        rtn_val['message'] = str(e)
     finally:
         conn.close()
 
@@ -138,3 +140,6 @@ def reset_db():
     create_users_table()
     create_accounts_table()
     create_positions_table()
+    
+    
+ERR_ACCOUNT_ID = 'User with such account id does not exist'
