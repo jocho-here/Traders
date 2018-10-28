@@ -1,6 +1,6 @@
-# Place to keep the raw queries
+# Place to keep the queries
 
-## Table creating raw queries
+## Table creating queries
 create_users =\
 """
 CREATE TABLE Users (
@@ -30,14 +30,15 @@ CREATE TABLE Accounts (
 create_positions =\
 """
 CREATE TABLE Positions (
-    id INT NOT NULL UNIQUE,
+    id INT NOT NULL AUTO_INCREMENT,
     account_id INT NOT NULL,
     open_rate_id INT NOT NULL,
     close_rate_id INT,
     position_type VARCHAR(256) NOT NULL,
     position_status VARCHAR(256) NOT NULL,
     volume FLOAT NOT NULL,
-    PRIMARY KEY (account_id, id),
+    PRIMARY KEY (id),
+    UNIQUE (id, account_id),
     FOREIGN KEY (account_id)
         REFERENCES Accounts(id) 
         ON DELETE CASCADE,
@@ -64,7 +65,7 @@ CREATE TABLE ExchangeRates (
 """
 
 
-## User related raw queries
+## User related queries
 insert_new_user =\
 """
 INSERT INTO Users (email, username, password, last_login)
@@ -100,5 +101,23 @@ user_id, account_name, open_date) values (
 """
 ]
 
-## Account related raw queries
-#def 
+# Positions related queries
+get_positions =\
+"""
+SELECT P.*
+FROM Positions P, ExchangeRates E
+WHERE P.account_id = %s AND E.id = P.open_rate_id
+"""
+
+create_new_position =\
+"""
+INSERT INTO Positions (account_id, open_rate_id, position_type, position_status, volume)
+    VALUES (%s, %s, %s, %s, %s)
+"""
+
+# ExchangeRate realted queries
+get_exchange_rate =\
+"""
+SELECT *
+FROM ExchangeRates
+"""

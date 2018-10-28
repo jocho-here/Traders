@@ -10,6 +10,8 @@ import raw_queries
 
 tables = ['Positions', 'Accounts', 'Users', 'ExchangeRates']
 
+ERR_ACCOUNT_ID = 'User with such account id does not exist'
+
 # Return current time frame
 def get_date_time():
     return time.strftime('%Y-%m-%d %H:%M:%S')
@@ -140,6 +142,3 @@ def reset_db():
     create_users_table()
     create_accounts_table()
     create_positions_table()
-    
-    
-ERR_ACCOUNT_ID = 'User with such account id does not exist'

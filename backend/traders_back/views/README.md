@@ -145,43 +145,39 @@ This API endpoint exists just for testing.
 
 ## Position Related
 
-## Position Management [/{user_id}/{account_id}/positions]
+## Position Management [/users/{user_id}/accounts/{account_id}/positions]
 
 ### Get all positions [GET]
 This API lets `from_date`, `to_date`, and `status` to be configured.  If you want to get positions
-within specific dates, send request to `/{user_id}/{account_id}/positions/from/{from_date}/to/{to_date}`.
+within specific dates, send request to `/users/{user_id}/accounts/{account_id}/positions/from/{from_date}/to/{to_date}`.
 If you want to get positions within specific dates and with certain status (open or close), make a
-request to `/{user_id}/{account_id}/positions/from/{from_date}/to/{to_date}/status/{status}`.  If you want to see
-positions that are with certain status, make a request to `/{user_id}/{account_id}/positions/status/{status}`.
+request to `/users/{user_id}/accounts/{account_id}/positions/from/{from_date}/to/{to_date}/status/{status}`.  If you want to see
+positions that are with certain status, make a request to `/users/{user_id}/accounts/{account_id}/positions/status/{status}`.
 
 + Response 200 (application/json)
 
         {
             "status": true,
-            "positions": {
-                "account_name": [
-                    {
-                        "position_id": 1,
-                        "currency_from": "usd",
-                        "currency_to": " "gbp",
-                        "open_rate_id": 1,
-                        "close_rate_id": null,
-                        "position_type": "short",
-                        "position_status": "open",
-                        "volume": 123.3
-                    },
-                    {
-                        "position_id": 2,
-                        "currency_from": "usd",
-                        "currency_to": "gbp",
-                        "open_rate_id": 1,
-                        "close_rate_id": 2,
-                        "position_type": "long",
-                        "position_status": "closed",
-                        "volume": 123.3
-                    }
-                ]
-            }
+            "user_id": 123,
+            "account_id": 123,
+            "positions": [
+                {
+                    "id": 1,
+                    "open_rate_id": 1,
+                    "close_rate_id": null,
+                    "position_type": "short",
+                    "position_status": "open",
+                    "volume": 123.3
+                },
+                {
+                    "id": 2,
+                    "open_rate_id": 1,
+                    "close_rate_id": 2,
+                    "position_type": "long",
+                    "position_status": "closed",
+                    "volume": 123.3
+                }
+            ]
         }
 
 ### Create a new position [POST]

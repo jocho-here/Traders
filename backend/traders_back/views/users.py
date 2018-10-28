@@ -63,9 +63,3 @@ def user_signin():
     query = 'UPDATE Users SET last_login="%s" WHERE id=%d' %(utils.get_date_time(), ret['user_id'])
     utils.setter_db(query)
     return jsonify(ret)
-          
-    
-    
-    
-    
-    
