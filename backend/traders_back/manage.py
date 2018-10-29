@@ -25,9 +25,19 @@ def create_position(account_id, currency_from, currency_to, time, position_type,
         
     return rtn_val
 
-# TODO
-#def get_exchange_rate_by_id(rate_id):
-#    modified_qery = raw_queries.get_exchange_rate + '\nWHERE id = %s'
+def get_exchange_rate_by_id(rate_id):
+    rtn_val = {}
+    modified_qery = raw_queries.get_exchange_rate + '\nWHERE id = %s'
+
+    result = getter_db(modified_query, data=(rate_id,))
+
+    if result['status']:
+        rtn_val['status'] = True
+        rtn_val['exchange_rate'] = result['result'][0]
+    else:
+        rtn_val = result
+
+    return rtn_val
 
 def get_exchange_rates(currency_from, currency_to, time=None):
     rtn_val = {}
@@ -56,6 +66,52 @@ def get_exchange_rates(currency_from, currency_to, time=None):
 
         if time:
             rtn_val['exchange_rate'] = rtn_val.pop('exchange_rates')[0]
+    else:
+        rtn_val = result
+
+    return rtn_val
+
+def close_position(position_id, close_rate_id):
+    rtn_val = {}
+    modified_query = raw_queries.get_exchange_rate
+    close_rate = get_exchange_rate_by_id(close_rate_id)
+
+    if close_rate['status']:
+        position = get_position(position_id)['position']
+        close_rate = close_rate['exchange_rate']
+        open_rate = get_exchange_rate_by_id(position['open_rate_id'])['exchange_rate']
+
+        if open_rate.time > close_rate.time:
+            rtn_val['status'] = False
+            rtn_val['message'] = "Closing exchange rate is earlier than the opening exchange rate"
+        else:
+            result = setter_db(raw_queries.close_position_with_id, (close_rate_id, position_id))
+
+            if result['status']:
+                rtn_val['status']
+                rtn_val['message'] = "Successfully closed position"
+            else:
+                rtn_val = result
+    else:
+        rtn_val['status'] = False
+        rtn_val['message'] = "Exchange rate with the given close_rate_id does not exist"
+
+    return rtn_val
+
+def get_position(position_id):
+    rtn_val = {}
+
+    result = getter_db(raw_queries.get_position_from_id, data=(position_id,))
+
+    if result['status']:
+        rtn_val['status'] = True
+        rtn_val['position'] = {}
+        rtn_val['position']['id'] = position_id
+        rtn_val['position']['open_rate_id'] = result['result']['open_rate_id']
+        rtn_val['position']['close_rate_id'] = result['result']['close_rate_id']
+        rtn_val['position']['position_type'] = result['result']['position_type']
+        rtn_val['position']['position_status'] = result['result']['position_status']
+        rtn_val['position']['volume'] = result['result']['volume']
     else:
         rtn_val = result
 

@@ -149,10 +149,12 @@ This API endpoint exists just for testing.
 
 ### Get all positions [GET]
 This API lets `from_date`, `to_date`, and `status` to be configured.  If you want to get positions
-within specific dates, send request to `/users/{user_id}/accounts/{account_id}/positions/from/{from_date}/to/{to_date}`.
+within specific dates, send request to
+`/users/{user_id}/accounts/{account_id}/positions/from/{from_date}/to/{to_date}`.
 If you want to get positions within specific dates and with certain status (open or close), make a
-request to `/users/{user_id}/accounts/{account_id}/positions/from/{from_date}/to/{to_date}/status/{status}`.  If you want to see
-positions that are with certain status, make a request to `/users/{user_id}/accounts/{account_id}/positions/status/{status}`.
+request to `/users/{user_id}/accounts/{account_id}/positions/from/{from_date}/to/{to_date}/status/{status}`.
+If you want to see positions that are with certain status, make a request to 
+`/users/{user_id}/accounts/{account_id}/positions/status/{status}`.
 
 + Response 200 (application/json)
 
@@ -211,7 +213,7 @@ Code Representation
 - 100: Insufficient balance
 
 
-## Individual Position [/{user_id}/{account_id}/{position_id}]
+## Individual Position [/users/{user_id}/accounts/{account_id}/positions/{position_id}]
 ## Get the position information [GET]
 
 + Response 200 (application/json)
@@ -219,9 +221,7 @@ Code Representation
         {
             "status": true,
             "position": {
-                "position_id": 2,
-                "currency_from": "usd",
-                "currency_to": "gbp",
+                "id": 2,
                 "open_rate_id": 1,
                 "close_rate_id": null,
                 "position_type": "long",
@@ -230,12 +230,12 @@ Code Representation
             }
         }
 
-## Close the position [POST]
+## Close the position [PUT]
 
 + Request Body (application/json)
 
         {
-            "close_time": 2018-10-10 11:11:11
+            "close_rate_id": 1
         }
 
 + Response 200 (application/json)

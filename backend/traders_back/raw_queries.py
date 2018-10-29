@@ -115,6 +115,18 @@ INSERT INTO Positions (account_id, open_rate_id, position_type, position_status,
     VALUES (%s, %s, %s, %s, %s)
 """
 
+get_position_from_id =\
+"""
+SELECT P.*
+FROM Positions
+WHERE id = %s
+"""
+
+close_position_with_id =\
+"""
+UPDATE Positions SET close_rate_id = %s WHERE id = %s
+"""
+
 # ExchangeRate realted queries
 get_exchange_rate =\
 """
