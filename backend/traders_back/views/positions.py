@@ -58,7 +58,8 @@ def positions_status(user_id, account_id, status):
 
     return jsonify(rtn_val)
 
-@positions.route('/users/<int:user_id>/accounts/<int:account_id>/positions/<int:position_id>', methods=['GET', 'PUT']):
+@positions.route('/users/<int:user_id>/accounts/<int:account_id>/positions/<int:position_id>', methods=['GET', 'PUT'])
+def specific_position(user_id, account_id, position_id):
     rtn_val = {}
 
     # TODO:Check if user_id and account_id are together

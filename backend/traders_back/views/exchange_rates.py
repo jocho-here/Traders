@@ -1,4 +1,4 @@
-from flask import request, jsonify Blueprint
+from flask import request, jsonify, Blueprint
 
 import traders_back.utils as utils
 import traders_back.manage as manage
