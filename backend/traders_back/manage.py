@@ -49,7 +49,7 @@ def get_exchange_rates(currency_from, currency_to, from_time=None, to_time=None,
         data.append(time)
     elif from_time and to_time:
         modified_query += ' AND time >= %s AND time <= %s'
-        data.append(from_time, to_time)
+        data.append((from_time, to_time))
 
     result = getter_db(modified_query, data=tuple(data))
 
