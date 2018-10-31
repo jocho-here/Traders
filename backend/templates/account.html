@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+  <title>Avalla</title>
+  
+  
+  
+      <link rel="stylesheet" href="account.css">
+
+  
+</head>
+
+<body>
+
+  <!DOCTYPE html>
+<html>
+<body>
+
+<nav align = right class="filler">
+ <div align = left class = "title"> Traders Capital </div>
+ <span class="dropdown">
+ <button onclick="myFunction()" class="btn dropbtn">Accounts</button>
+  <div id="myDropdown" class="dropdown-content">
+    <a href="#home">Account 1</a>
+    <a href="#about">Account 2</a>
+    <a href="#contact">Account 3</a>
+  </div>
+</span>
+ &nbsp;&nbsp;&nbsp;&nbsp;
+ <a class="btn btn-secondary2" href="/js/">History</a>                    &nbsp;&nbsp;&nbsp;&nbsp;
+ <a class="btn btn-secondary" href="/pl/logout">Log Out</a>
+</nav>
+<br/>
+<fieldset class = "field">
+  
+  <a class = "text"><pre> <u>From</u>          <u>To</u><br/></pre></a>
+    <select>
+      <option value="USD">USD</option>
+      <option value="CHN">CHN</option>
+      <option value="GBP">GBP</option>
+      <option value="EUR">EUR</option>
+      <option value="EUR">GER</option>
+    </select>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <select>
+      <option value="USD">USD</option>
+      <option value="CHN">CHN</option>
+      <option value="GBP">GBP</option>
+      <option value="EUR">EUR</option>
+      <option value="GER">GER</option>
+    </select>
+    <form action="/action_page.php">
+      <br/>
+      <a class = "black">
+      Start Date: <br/>
+      <input type="text" name="FirstName" value="11/1/2018"> <br/>
+      End Date: <br/>
+      <input type="text" name="LastName" value="11/12/2018"><br>
+      </a>
+      <br/>
+      <input type="submit" value="Find">
+    </form>
+    <br/>
+  <a class = "black"> <b> Rate Table </b> </a>
+  <br/>
+ <table>
+  <tr>
+    <th>From</th>
+    <th>To</th>
+    <th>Time</th>
+    <th>Rate</th>
+    <th>Volume</th>
+    <th>Buy </th>
+  </tr>
+  <tr>
+    <td>USD</td>
+    <td>CHN</td>
+    <td>2018-11-10 11:11:11</td>
+    <td>15</td>
+    <td><input type="text" name = "V1"></td>
+    <td><input type="submit" value="Buy"></td>
+  </tr>
+  <tr>
+    <td>USD</td>
+    <td>CHN</td>
+    <td>2018-10-10 11:11:11</td>
+    <td>12</td>
+    <td><input type="text" name = "V1"></td>
+    <td><input type="submit" value="Buy"></td>
+  </tr>
+</table>
+<br/>  
+<a class = "black"> <b> Position Table </b> </a>
+  <br/>
+ <table>
+  <tr>
+    <th>From</th>
+    <th>To</th>
+    <th>Time</th>
+    <th>Rate</th>
+    <th>Volume</th>
+    <th>Sell</th>
+  </tr>
+  <tr>
+    <td>USD</td>
+    <td>CHN</td>
+    <td>2018-11-10 11:11:11</td>
+    <td>15</td>
+    <td>150</td>
+    <td><input type="submit" value="Sell"></td>
+  </tr>
+  <tr class = "row1">
+    <td>USD</td>
+    <td>CHN</td>
+    <td>2018-10-10 11:11:11</td>
+    <td>12</td>
+    <td>127</td>
+    <td><input type="submit" value="Sell"></td>
+  </tr>
+</table>
+<br/>
+ 
+</fieldset>
+<br/>
+</body>
+</html>
+  
+  
+
+    <script  src="account.js"></script>
+
+
+
+
+</body>
+
+</html>
