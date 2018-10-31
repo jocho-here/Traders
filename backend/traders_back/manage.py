@@ -39,7 +39,7 @@ def get_exchange_rate_by_id(rate_id):
 
     return rtn_val
 
-def get_exchange_rates(currency_from, currency_to, time=None, from_time=None, to_time=None):
+def get_exchange_rates(currency_from, currency_to, from_time=None, to_time=None, time=None):
     rtn_val = {}
     modified_query = raw_queries.get_exchange_rate + '\nWHERE currency_from = %s AND currency_to = %s'
     data = [currency_from, currency_to]
