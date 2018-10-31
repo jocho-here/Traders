@@ -66,6 +66,13 @@ CREATE TABLE ExchangeRates (
 
 
 ## User related queries
+
+check_user_existence =\
+"""
+SELECT *
+FROM Users
+WHERE email=%s OR username=%s 
+"""
 insert_new_user =\
 """
 INSERT INTO Users (email, username, password, last_login)
@@ -85,7 +92,7 @@ SELECT * FROM Users
 delete_user =\
 """
 DELETE FROM Users
-WHERE email = %s
+WHERE email = %s AND password = %s
 """
 
 feed_test_data = [

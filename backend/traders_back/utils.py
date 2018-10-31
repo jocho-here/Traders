@@ -2,7 +2,7 @@ from flask import request
 import re, json, time
 import pymysql.cursors
 
-import raw_queries
+import traders_back.raw_queries as raw_queries
 
 
 # This is where utility functions reside
