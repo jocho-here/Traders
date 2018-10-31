@@ -249,7 +249,8 @@ Code Representation
 
 ## Exchange Rates Related
 
-## Getting Exchange Rate Data [/exchangerates/currency_from/{currency_from}/currency_to/{currency_to}/from_date/{from_date}/to_date/{to_date}]
+## Getting Exchange Rate Data [/exchangerates/currency_from/{currency_from}/currency_to/{currency_to}/from_time/{from_time}/to_time/{to_time}]
+An API endpoint for getting all the exchange rates that are within `from_time` and `to_time` time frame.  These arguments should be in the format of `year-month-day_hour:minute:second`.  For example, `2018-11-11_11:00:00`.
 
 + Response 200 (application/json)
 
@@ -257,8 +258,8 @@ Code Representation
             "status": true,
             "currency_from": 'usd',
             "currency_to": 'gbp',
-            "from_data": 2018-01-01 11:11:11,
-            "to_data": 2018-01-10 11:11:11,
+            "from_time": 2018-01-01 11:11:11,
+            "to_time": 2018-01-10 11:11:11,
             "exchange_rates": [
                 {
                     "id": 0,

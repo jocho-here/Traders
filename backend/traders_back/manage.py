@@ -39,7 +39,7 @@ def get_exchange_rate_by_id(rate_id):
 
     return rtn_val
 
-def get_exchange_rates(currency_from, currency_to, time=None):
+def get_exchange_rates(currency_from, currency_to, time=None, from_time=None, to_time=None):
     rtn_val = {}
     modified_query = raw_queries.get_exchange_rate + '\nWHERE currency_from = %s AND currency_to = %s'
     data = [currency_from, currency_to]
@@ -47,6 +47,9 @@ def get_exchange_rates(currency_from, currency_to, time=None):
     if time:
         modified_query += ' AND time = %s'
         data.append(time)
+    elif from_date and to_date:
+        modified_query += ' AND time >= %s AND time <= %s'
+        data.append(from_date, to_date)
 
     result = getter_db(modified_query, data=tuple(data))
 
@@ -54,6 +57,11 @@ def get_exchange_rates(currency_from, currency_to, time=None):
         rtn_val['status'] = True
         rtn_val['currency_from'] = currency_from
         rtn_val['currency_to'] = currency_to
+
+        if from_time and to_time:
+            rtn_val['from_time'] = from_time
+            rtn_val['to_time'] = to_time
+
         rtn_val['exchange_rates'] = []
 
         for rate in result['result']:
