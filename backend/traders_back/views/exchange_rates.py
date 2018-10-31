@@ -14,6 +14,6 @@ def getting_exchange_rates(currency_from, currency_to, from_time, to_time):
     if request.method == 'GET':
         from_time = from_time.replace('_', ' ')
         to_time = to_time.replace('_', ' ')
-        rtn_val = manage.get_exchange_rates(currency_from, currency_to, from_time, to_time)
+        rtn_val = manage.get_exchange_rates(currency_from, currency_to, from_time=from_time, to_time=to_time)
 
     return jsonify(rtn_val)

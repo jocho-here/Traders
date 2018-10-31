@@ -47,11 +47,13 @@ def get_exchange_rates(currency_from, currency_to, time=None, from_time=None, to
     if time:
         modified_query += ' AND time = %s'
         data.append(time)
-    elif from_date and to_date:
+    elif from_time and to_time:
         modified_query += ' AND time >= %s AND time <= %s'
-        data.append(from_date, to_date)
+        data.append(from_time)
+        data.append(to_time)
 
     result = getter_db(modified_query, data=tuple(data))
+    print(result)
 
     if result['status']:
         rtn_val['status'] = True
