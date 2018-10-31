@@ -19,6 +19,7 @@ CREATE TABLE Accounts (
     id INT NOT NULL AUTO_INCREMENT,
     user_id INT NOT NULL,
     account_name VARCHAR(256) NOT NULL,
+    available_equity REAL NOT NULL,
     open_date DATETIME NOT NULL,
     close_date DATETIME,
     PRIMARY KEY (id),
@@ -67,12 +68,12 @@ CREATE TABLE ExchangeRates (
 
 ## User related queries
 
-check_user_existence =\
-"""
-SELECT *
-FROM Users
-WHERE email=%s OR username=%s 
-"""
+#check_user_existence =\
+#"""
+#SELECT *
+#FROM Users
+#WHERE email=%s OR username=%s 
+#"""
 insert_new_user =\
 """
 INSERT INTO Users (email, username, password, last_login)
@@ -84,6 +85,10 @@ get_user_id_from_email =\
 SELECT id FROM Users WHERE email = %s
 """
 
+get_user_info_from_id =\
+"""
+SELECT * FROM Users WHERE id = %s
+"""
 get_all_users =\
 """
 SELECT * FROM Users
@@ -139,4 +144,39 @@ get_exchange_rate =\
 """
 SELECT *
 FROM ExchangeRates
+"""
+
+
+# Account related queries
+create_account =\
+"""
+INSERT INTO Accounts(user_id, account_name, available_equity, open_date)
+    VALUES(%s, %s, %s, %s)
+"""
+
+delete_account =\
+"""
+DELETE FROM Accounts
+WHERE user_id = %s AND id = %s
+"""
+
+get_account_info_from_uid_accname =\
+"""
+SELECT *
+FROM Accounts
+WHERE user_id = %s AND account_name = %s
+"""
+
+get_account_info_from_uid_accid =\
+"""
+SELECT *
+FROM Accounts
+WHERE user_id = %s AND id = %s
+"""
+
+get_user_accounts =\
+"""
+SELECT *
+FROM Accounts
+WHERE user_id = %s
 """

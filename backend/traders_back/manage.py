@@ -1,8 +1,10 @@
 import pymysql.cursors
 from datetime import datetime
 
-from utils import setter_db, getter_db
-import raw_queries
+
+import traders_back.utils as utils
+from traders_back.utils import setter_db, getter_db
+import traders_back.raw_queries as raw_queries
 
 
 def create_position(account_id, currency_from, currency_to, time, position_type, volume):
@@ -163,26 +165,114 @@ def get_positions(account_id, from_date=None, to_date=None, status=None):
 # Check whether account_id is associated with the user_id
 #def check_account_id(user_id, account_id)
 
-# TODO
+def create_account(uid, acc_name):
+    rtn_val = {}
+    result = setter_db(raw_queries.create_account, data = (uid,
+                                                           acc_name,
+                                                           100000,
+                                                           datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+    if result['status']:
+        rtn_val['status'] = True
+    else:
+        rtn_val['status'] = False
+        rtn_val['message'] = result['message']
+        return rtn_val
+    
+    acc_id = getter_db(raw_queries.get_account_info_from_uid_accname,
+                                data=(uid,
+                                      acc_name))['result'][0]['id']
+    rtn_val['account_id'] = acc_id
+    return rtn_val
+    
+
+def get_account_info(uid, acc_id):
+    rtn_val = {}
+    result = getter_db(raw_queries.get_account_info_from_uid_accid, data=(uid, acc_id))
+    
+    if not result['status']:
+        rtn_val['status'] = False
+        rtn_val['message'] = result['message']
+        return rtn_val
+    elif len(result['result']) == 0:
+        rtn_val['status'] = False
+        rtn_val['message'] = "User_id Account_id pair not in DB"
+        return rtn_val
+    else:
+        rtn_val['status'] = True
+        
+    acc_info = result['result'][0]
+    acc_info["account_id"] = acc_info["id"]
+    acc_info.pop('id', None)
+    rtn_val["account_info"] = acc_info
+        
+    return rtn_val
+
+
+def delete_account(uid, acc_id):
+    rtn_val = {}
+    del_status = setter_db(raw_queries.delete_account, data=(uid, acc_id))
+    
+    if not del_status['status']:
+        rtn_val['status'] = False
+        rtn_val['message'] = del_status['message']
+    else:
+        rtn_val['status'] = True
+    return rtn_val    
+
+def get_user_accounts(uid):
+    rtn_val = {}
+    result = getter_db(raw_queries.get_user_accounts, data=(uid))
+
+    if result['status']:
+        rtn_val['status'] = True
+    else:
+        rtn_val['status'] = False
+        rtn_val['message'] = result['message']
+        return rtn_val
+    
+    rtn_val["accounts"] = []
+    accounts = result['result']
+    for account in accounts:
+        account["account_id"] = account["id"]
+        account.pop("id", None)
+        rtn_val["accounts"].append(account)
+    return rtn_val
+        
+    
+# USER functions
+
 def delete_user(email, password):
     rtn_val = {}
+    result = setter_db(raw_queries.delete_user, data = (email, password))
 
-    return "Need to implement"
+    if result['status']:
+        rtn_val['status'] = True
+    else:
+        rtn_val['status'] = False
+        rtn_val['message'] = result['message']
+    return rtn_val
 
 def sign_up(email, username, password):
     rtn_val = {}
-    setter_db(raw_queries.insert_new_user, data = (email,
+   
+    set_status = setter_db(raw_queries.insert_new_user, data = (email,
                                                    username,
                                                    password,
                                                    datetime.utcnow()))
-    result = getter_db(raw_queries.get_user_id_from_email(), data=(email,))['result']
+    if not set_status['status']:
+        rtn_val['status'] = False
+        rtn_val['message'] = set_status['message']
+        return rtn_val
+    else:
+        rtn_val['status'] = True
+    result = getter_db(raw_queries.get_user_id_from_email, data=(email,))['result']
     rtn_val['user_id'] = result[0]['id']
 
     return rtn_val
 
 def get_all_users():
     rtn_val = {'users': []}
-    result = getter_db(raw_queries.get_all_users())['result']
+    result = getter_db(raw_queries.get_all_users)['result']
 
     for user in result:
         curr_user = {}
@@ -193,3 +283,24 @@ def get_all_users():
         rtn_val['users'].append(curr_user)
 
     return rtn_val
+
+def get_user_info(uid):
+    rtn_val = {}
+    get_status = getter_db(raw_queries.get_all_users)
+    if not get_status['status']:
+        rtn_val['status'] = False
+        rtn_val['message'] = get_status['message']
+        return rtn_val
+    elif len(get_status['result']) == 0:
+        rtn_val['status'] = False
+        rtn_val['message'] = "User ID not in DB"
+        return rtn_val
+    else:
+        rtn_val['status'] = True
+    rtn_val['user'] = get_status['result'][0]
+    
+    return rtn_val
+
+    
+    
+    
