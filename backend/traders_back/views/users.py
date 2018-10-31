@@ -5,6 +5,7 @@ import traders_back.manage as manage
 
 users = Blueprint('users', __name__)
 
+
 @users.route('/users', methods=['POST', 'DELETE', 'GET'])
 def user_manipulation():
     rtn_val = {'status':False}
@@ -16,7 +17,7 @@ def user_manipulation():
             result = manage.sign_up(req['email'], req['username'], req['password'])
             rtn_val['status'] = True
             rtn_val['message'] = "Successfully signed up"
-            rtn_val['email'] = email
+            rtn_val['email'] = req['email']
         else:
             rtn_val['status'] = False
             rtn_val['message'] = "Request is missing either email, username, or password"
