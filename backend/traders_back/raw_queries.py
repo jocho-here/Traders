@@ -8,7 +8,7 @@ CREATE TABLE Users (
     email VARCHAR(256) NOT NULL UNIQUE,
     username VARCHAR(256) NOT NULL UNIQUE,
     password VARCHAR(256) NOT NULL,
-    last_login DATETIME NOT NULL,
+    last_login TIMESTAMP NOT NULL,
     PRIMARY KEY (id)
 )
 """
@@ -60,7 +60,7 @@ CREATE TABLE ExchangeRates (
     currency_to VARCHAR(128) NOT NULL,
     bid FLOAT NOT NULL,
     ask FLOAT NOT NULL,
-    time TIMESTAMP NOT NULL,
+    time DATETIME NOT NULL,
     PRIMARY KEY (id)
 )
 """
@@ -129,14 +129,15 @@ INSERT INTO Positions (account_id, open_rate_id, position_type, position_status,
 
 get_position_from_id =\
 """
-SELECT P.*
+SELECT *
 FROM Positions
 WHERE id = %s
 """
 
 close_position_with_id =\
 """
-UPDATE Positions SET close_rate_id = %s WHERE id = %s
+UPDATE Positions SET close_rate_id = %s, position_status = %s
+WHERE id = %s
 """
 
 # ExchangeRate realted queries
@@ -144,6 +145,21 @@ get_exchange_rate =\
 """
 SELECT *
 FROM ExchangeRates
+"""
+#
+#CREATE TABLE ExchangeRates (
+#    id INT NOT NULL AUTO_INCREMENT,
+#    currency_from VARCHAR(128) NOT NULL,
+#    currency_to VARCHAR(128) NOT NULL,
+#    bid FLOAT NOT NULL,
+#    ask FLOAT NOT NULL,
+#    time DATETIME NOT NULL,
+#    PRIMARY KEY (id)
+#)
+add_exchange_rate =\
+"""
+INSERT INTO ExchangeRates (currency_from, currency_to, bid, ask, time)
+    VALUES(%s, %s, %s, %s, %s)
 """
 
 
