@@ -3,6 +3,7 @@
 - [User Management](#user-related)
 - [Account Management](#account-related)
 - [Position Management](#position-related)
+- [Exchange Rates Management](#exchange-rates-related)
 
 ## User Related
 
@@ -243,4 +244,39 @@ Code Representation
         {
             "status": true,
             "message": "Successfully closed position"
+        }
+
+
+## Exchange Rates Related
+
+## Getting Exchange Rate Data [/exchangerates/currency_from/{currency_from}/currency_to/{currency_to}/from_date/{from_date}/to_date/{to_date}]
+
++ Response 200 (application/json)
+
+        {
+            "status": true,
+            "currency_from": 'usd',
+            "currency_to": 'gbp',
+            "from_data": 2018-01-01 11:11:11,
+            "to_data": 2018-01-10 11:11:11,
+            "exchange_rates": [
+                {
+                    "id": 0,
+                    "bid": 13.0,
+                    "ask": 14.0,
+                    "time": 2018-01-01 12:00:00
+                },
+                {
+                    "id": 1,
+                    "bid": 13.0,
+                    "ask": 14.0,
+                    "time": 2018-01-02 12:00:00
+                },
+                {
+                    "id": 2,
+                    "bid": 13.0,
+                    "ask": 14.0,
+                    "time": 2018-01-03 12:00:00
+                },
+            ]
         }
