@@ -5,7 +5,6 @@ import traders_back.manage as manage
 
 users = Blueprint('users', __name__)
 
-<<<<<<< HEAD
 @users.route('/login', methods=['GET', 'POST'])
 def user_login():
     if request.method == 'POST':
@@ -34,8 +33,6 @@ def user_page():
     uid = request.args.get('uid')
     acc = get_account_info_help(uid)
     return render_template('account.html', account_info=acc)
-=======
->>>>>>> bcab3ec5cdad398c78040608320eb1b4ee4b633e
 
 @users.route('/users', methods=['POST', 'DELETE', 'GET'])
 def user_manipulation():
