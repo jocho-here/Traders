@@ -12,7 +12,7 @@ def get_exchange_rate_by_id(rate_id):
 
     result = getter_db(modified_query, data=(rate_id,))
 
-    if result['status']:
+    if result['status'] and len(result['result']) > 0:
         rtn_val['status'] = True
         rtn_val['exchange_rate'] = result['result'][0]
     else:
@@ -22,11 +22,8 @@ def get_exchange_rate_by_id(rate_id):
 
 def add_exchange_rate(currency_from, currency_to, bid, ask, time):
     rtn_val = {'status': False}
-    result = setter_db(raw_queries.add_exchange_rate, data = (currency_from,
-                                                           currency_to,
-                                                           bid,
-                                                           ask,
-                                                           time))
+    result = setter_db(raw_queries.add_exchange_rate, data = (currency_from, currency_to, bid, ask, time))
+
     if result['status']:
         rtn_val['status'] = True
         rtn_val['rate_id'] = result['last_insert_index']
@@ -159,7 +156,7 @@ def get_positions(account_id, from_date=None, to_date=None, status=None):
 
     result = getter_db(modified_query, data=tuple(data))
 
-    if result['status']:
+    if result['status'] and len(result['result']) > 0:
         rtn_val['status'] = True
         rtn_val['positions'] = []
 
@@ -240,7 +237,7 @@ def get_user_accounts(uid):
     rtn_val = {}
     result = getter_db(raw_queries.get_user_accounts, data=(uid))
 
-    if result['status']:
+    if result['status'] and len(result['result']) > 0:
         rtn_val['status'] = True
     else:
         rtn_val['status'] = False
