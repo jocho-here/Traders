@@ -35,6 +35,18 @@ def get_req_data():
 
 
 #### DB related
+# Check if row exist, reutrn True of False based on select count
+def check_exist_db(sql, data=None):
+    conn = get_conn()
+    try: 
+        with conn.cursor() as cursor:
+            cursor.execute(sql, data)
+            if cursor.rowcount > 0:
+                return True
+    except:
+        pass
+    return False
+
 
 # Any query that requires changes in the DB
 def setter_db(sql, data=None):
@@ -142,3 +154,4 @@ def reset_db():
     create_users_table()
     create_accounts_table()
     create_positions_table()
+    

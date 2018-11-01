@@ -1,9 +1,38 @@
-from flask import request, jsonify, Blueprint
+from flask import request, jsonify, Blueprint, render_template, redirect, url_for
 
 import traders_back.utils as utils
 import traders_back.manage as manage
 
 users = Blueprint('users', __name__)
+
+@users.route('/login', methods=['GET', 'POST'])
+def user_login():
+    if request.method == 'POST':
+        req = utils.get_req_data()
+        user = req['userName']
+        pswd = req['passWord']
+        sql = '''SELECT id FROM Users
+		    WHERE username=%s AND password=%s'''
+        data = utils.getter_db(sql, [user, pswd])['result']
+        if len(data) == 0:
+            #invalid password, later on add indications
+            return render_template("login_page.html")
+        return redirect(url_for('users.user_page', uid=data[0]['id']))		
+
+    return render_template("login_page.html")
+
+def get_account_info_help(uid):
+    sql = '''SELECT 
+        A.id, A.account_name, A.open_date, A.close_date
+        FROM Accounts A
+        WHERE A.user_id=%s'''
+    return utils.getter_db(sql, (uid))['result']
+
+@users.route('/user_page')
+def user_page():
+    uid = request.args.get('uid')
+    acc = get_account_info_help(uid)
+    return render_template('account.html', account_info=acc)
 
 @users.route('/users', methods=['POST', 'DELETE', 'GET'])
 def user_manipulation():

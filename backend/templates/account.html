@@ -7,7 +7,7 @@
   
   
   
-      <link rel="stylesheet" href="account.css">
+      <link rel="stylesheet" href="../static/css/account.css">
 
   
 </head>
@@ -17,7 +17,11 @@
   <!DOCTYPE html>
 <html>
 <body>
+<script>
 
+var account_info = JSON.parse('{{account_info | tojson | safe}}');
+
+</script>
 <nav align = right class="filler">
  <div align = left class = "title"> Traders Capital </div>
  <span class="dropdown">
@@ -129,7 +133,7 @@
   
   
 
-    <script  src="account.js"></script>
+    <script  src="../static/js/account.js"></script>
 
 
 

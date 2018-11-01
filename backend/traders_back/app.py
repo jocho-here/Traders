@@ -7,8 +7,15 @@ from views.users import users
 from views.exchange_rates import exchange_rates
 from views.positions import positions
 
+import os
 # This is where we start our backend app
-app = Flask(__name__)
+template_dir = os.path.abspath('../templates')
+static_dir = os.path.abspath('../static')
+app = Flask(__name__, 
+    template_folder=template_dir,
+    static_folder=static_dir
+    )
+
 
 # Blueprint registration
 app.register_blueprint(accounts)
