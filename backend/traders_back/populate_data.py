@@ -1,4 +1,5 @@
 import traders_back.manage as manage
+import traders_back.utils as utils
 from datetime import datetime
 
 emails = [
@@ -84,6 +85,9 @@ user_ids = []
 account_ids = {} # Key: user_id, Value: list of account_id's
 exchange_rate_ids = []
 position_ids = {}
+
+# Initializing DB
+utils.reset_db()
 
 # Create users
 for i in range(len(emails)):
