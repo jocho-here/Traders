@@ -7,7 +7,7 @@
   
   
   
-      <link rel="stylesheet" href="../static/css/account.css">
+      <link rel="stylesheet" href="account.css">
 
   
 </head>
@@ -17,11 +17,7 @@
 <!DOCTYPE html>
 <html>
 <body>
-<script>
 
-var account_info = JSON.parse('{{account_info | tojson | safe}}');
-
-</script>
 <nav align = right class="filler">
  <div align = left class = "title"> Traders Capital </div>
  <span class="dropdown">
@@ -66,8 +62,8 @@ var account_info = JSON.parse('{{account_info | tojson | safe}}');
     	window.location.reload()
     }
     </script>
-      
-    <br/>
+ 
+      <br/>
       <a class = "black">
       Start Date_Time: <br/>
       <input id = "start" type="text" name="start" value="2018-10-30_17:26:34"> <br/>
@@ -79,11 +75,6 @@ var account_info = JSON.parse('{{account_info | tojson | safe}}');
 
     <br/>
  <script>
- 
- function (){
- 
- }
- 
  var s = localStorage.getItem("start")
  var e = localStorage.getItem("end")	
  function httpGet(theUrl)
@@ -124,19 +115,36 @@ for(var i = 0; i < c.positions.length; i++){
 	document.write("</tr>")
 	
 }
+
+var domain = window.location.hostname;
+var port = window.location.port;
+var protocal = window.location.protocol;
+console.log(domain, port);
+var url = "http://localhost:8080/users/1/accounts/1/positions"
+var http = new XMLHttpRequest();
+var params = {
+"currency_from":"usd", "currency_to":"gbp","time": "2018-10-10 11:11:11", "position_type": "short", "volume": 123.3
+};
+http.open('POST', url, false);
+//Send the proper header information along with the request
+http.setRequestHeader('Content-type', 'application/json');
+//http.send(JSON.stringify(params))
+http.onreadystatechange = function(e) {//Call a function when the state changes.
+    if(http.readyState == 4 && http.status == 200) {
+        console.log(http.responseText);
+    }
+}
+
+
+
+document.write(params.currency_from)
  </script>
 </fieldset>
 <br/>
 </body>
 </html>
   
-<<<<<<< HEAD
-  
-
-    <script  src="../static/js/account.js"></script>
-=======
     <script  src="account.js"></script>
->>>>>>> bcab3ec5cdad398c78040608320eb1b4ee4b633e
 
 </body>
 
