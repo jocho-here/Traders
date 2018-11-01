@@ -14,7 +14,7 @@
 
 <body>
 
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <body>
 <script>
@@ -33,7 +33,8 @@ var account_info = JSON.parse('{{account_info | tojson | safe}}');
   </div>
 </span>
  &nbsp;&nbsp;&nbsp;&nbsp;
- <a class="btn btn-secondary2" href="/js/">History</a>                    &nbsp;&nbsp;&nbsp;&nbsp;
+ <a class="btn btn-secondary2" href="/js/">History</a>                    
+ &nbsp;&nbsp;&nbsp;&nbsp;
  <a class="btn btn-secondary" href="/pl/logout">Log Out</a>
 </nav>
 <br/>
@@ -55,88 +56,87 @@ var account_info = JSON.parse('{{account_info | tojson | safe}}');
       <option value="EUR">EUR</option>
       <option value="GER">GER</option>
     </select>
-    <form action="/action_page.php">
-      <br/>
+    <script>
+    
+    var save = function(){
+    	var start = document.getElementById("start")
+    	var end = document.getElementById("end")
+    	localStorage.setItem("start", start.value)	
+    	localStorage.setItem("end", end.value)
+    	window.location.reload()
+    }
+    </script>
+      
+    <br/>
       <a class = "black">
-      Start Date: <br/>
-      <input type="text" name="FirstName" value="11/1/2018"> <br/>
-      End Date: <br/>
-      <input type="text" name="LastName" value="11/12/2018"><br>
+      Start Date_Time: <br/>
+      <input id = "start" type="text" name="start" value="2018-10-30_17:26:34"> <br/>
+      End Date_Time: <br/>
+      <input id = "end" type="text" name="end" value="2018-11-30_17:26:34"><br>
       </a>
       <br/>
-      <input type="submit" value="Find">
-    </form>
+      <button onclick="save()" class="btn dropbtn">Find</button>
+
     <br/>
-  <a class = "black"> <b> Rate Table </b> </a>
-  <br/>
- <table>
-  <tr>
-    <th>From</th>
-    <th>To</th>
-    <th>Time</th>
-    <th>Rate</th>
-    <th>Volume</th>
-    <th>Buy </th>
-  </tr>
-  <tr>
-    <td>USD</td>
-    <td>CHN</td>
-    <td>2018-11-10 11:11:11</td>
-    <td>15</td>
-    <td><input type="text" name = "V1"></td>
-    <td><input type="submit" value="Buy"></td>
-  </tr>
-  <tr>
-    <td>USD</td>
-    <td>CHN</td>
-    <td>2018-10-10 11:11:11</td>
-    <td>12</td>
-    <td><input type="text" name = "V1"></td>
-    <td><input type="submit" value="Buy"></td>
-  </tr>
-</table>
-<br/>  
-<a class = "black"> <b> Position Table </b> </a>
-  <br/>
- <table>
-  <tr>
-    <th>From</th>
-    <th>To</th>
-    <th>Time</th>
-    <th>Rate</th>
-    <th>Volume</th>
-    <th>Sell</th>
-  </tr>
-  <tr>
-    <td>USD</td>
-    <td>CHN</td>
-    <td>2018-11-10 11:11:11</td>
-    <td>15</td>
-    <td>150</td>
-    <td><input type="submit" value="Sell"></td>
-  </tr>
-  <tr class = "row1">
-    <td>USD</td>
-    <td>CHN</td>
-    <td>2018-10-10 11:11:11</td>
-    <td>12</td>
-    <td>127</td>
-    <td><input type="submit" value="Sell"></td>
-  </tr>
-</table>
-<br/>
+ <script>
  
+ function (){
+ 
+ }
+ 
+ var s = localStorage.getItem("start")
+ var e = localStorage.getItem("end")	
+ function httpGet(theUrl)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", theUrl, false); // false for synchronous request
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
+}
+var ret = httpGet("http://localhost:8080/exchangerates/currency_from/usd/currency_to/gbp/from_time/"+ s + "/to_time/" + e);
+var c = JSON.parse(ret);
+document.write("<a class = 'black'> <b> Rate Table </b> </a> <table>")
+document.write("  <tr> <th>From</th> <th>To</th> <th>Time</th> <th>Rate</th> <th>Volume</th> <th>Buy</th></tr>")
+for(var i = 0; i < c.exchange_rates.length; i++){
+	document.write("<tr>")
+	document.write("<td>" + c.currency_from + "</td>");
+	document.write("<td>" + c.currency_to + "</td>");
+	document.write("<td>" + c.exchange_rates[i].time + "</td>");
+	document.write("<td>" + c.exchange_rates[i].bid + "</td>");
+	document.write("<td> <input type='text' name = 'V" + i + "'></td>");
+	document.write("<td> <input type='submit' value='Buy'></td>");
+	document.write("</tr>")
+}
+var f = c;
+document.write("</table> <br/>")
+document.write("<a class = 'black'> <b> Position Table </b> </a> <table>");
+ret = httpGet("http://localhost:8080/users/1/accounts/1/positions");
+c = JSON.parse(ret);
+document.write("<tr> <th>From</th> <th>To</th> <th>Time</th> <th>Rate</th> <th>Volume</th> <th>Sell</th></tr>");
+for(var i = 0; i < c.positions.length; i++){
+    document.write("<tr>")
+	document.write("<td>" + f.currency_from + "</td>");
+	document.write("<td>" + f.currency_to + "</td>");
+	document.write("<td> FUTURE </td>");
+	document.write("<td>" + c.positions[i].open_rate_id + "</td>");
+	document.write("<td>" + c.positions[i].volume + "</td>");
+	document.write("<td><input type='submit' value='Sell'></td>");
+	document.write("</tr>")
+	
+}
+ </script>
 </fieldset>
 <br/>
 </body>
 </html>
   
+<<<<<<< HEAD
   
 
     <script  src="../static/js/account.js"></script>
-
-
-
+=======
+    <script  src="account.js"></script>
+>>>>>>> bcab3ec5cdad398c78040608320eb1b4ee4b633e
 
 </body>
 

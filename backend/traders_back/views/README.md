@@ -109,9 +109,7 @@ This API endpoint exists just for testing.
         {
             "status": true,
             "message": "Successfully created a new sub-account",
-            "user_email": "someone@email.com",
-            "account_name": "someaccountname",
-            "account_id": 321
+            "account_id": 321,
         }
 
 
@@ -123,13 +121,12 @@ This API endpoint exists just for testing.
 
         {
             "status": true,
-            "user_email": "someone@email.com",
-            "user_id": 123,
+            user_id": 123,
             "account_name": "someaccountname",
-            "open_date": 2018-10-10 23:23:23,
-            "positions": [
-                ...
-            ]
+            "account_id": 321,
+            "available_equity": 100000.0
+            "open_date": datetime.datetime(2018, 10, 31, 18, 51, 34), 
+            'close_date': None
         }
 
 ### Delete account [DELETE]

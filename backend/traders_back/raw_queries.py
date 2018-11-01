@@ -8,7 +8,7 @@ CREATE TABLE Users (
     email VARCHAR(256) NOT NULL UNIQUE,
     username VARCHAR(256) NOT NULL UNIQUE,
     password VARCHAR(256) NOT NULL,
-    last_login DATETIME NOT NULL,
+    last_login TIMESTAMP NOT NULL,
     PRIMARY KEY (id)
 )
 """
@@ -19,6 +19,7 @@ CREATE TABLE Accounts (
     id INT NOT NULL AUTO_INCREMENT,
     user_id INT NOT NULL,
     account_name VARCHAR(256) NOT NULL,
+    available_equity REAL NOT NULL,
     open_date DATETIME NOT NULL,
     close_date DATETIME,
     PRIMARY KEY (id),
@@ -59,13 +60,20 @@ CREATE TABLE ExchangeRates (
     currency_to VARCHAR(128) NOT NULL,
     bid FLOAT NOT NULL,
     ask FLOAT NOT NULL,
-    time TIMESTAMP NOT NULL,
+    time DATETIME NOT NULL,
     PRIMARY KEY (id)
 )
 """
 
 
 ## User related queries
+
+#check_user_existence =\
+#"""
+#SELECT *
+#FROM Users
+#WHERE email=%s OR username=%s 
+#"""
 insert_new_user =\
 """
 INSERT INTO Users (email, username, password, last_login)
@@ -77,6 +85,10 @@ get_user_id_from_email =\
 SELECT id FROM Users WHERE email = %s
 """
 
+get_user_info_from_id =\
+"""
+SELECT * FROM Users WHERE id = %s
+"""
 get_all_users =\
 """
 SELECT * FROM Users
@@ -85,7 +97,7 @@ SELECT * FROM Users
 delete_user =\
 """
 DELETE FROM Users
-WHERE email = %s
+WHERE email = %s AND password = %s
 """
 
 feed_test_data = [
@@ -117,14 +129,15 @@ INSERT INTO Positions (account_id, open_rate_id, position_type, position_status,
 
 get_position_from_id =\
 """
-SELECT P.*
+SELECT *
 FROM Positions
 WHERE id = %s
 """
 
 close_position_with_id =\
 """
-UPDATE Positions SET close_rate_id = %s WHERE id = %s
+UPDATE Positions SET close_rate_id = %s, position_status = %s
+WHERE id = %s
 """
 
 # ExchangeRate realted queries
@@ -132,4 +145,54 @@ get_exchange_rate =\
 """
 SELECT *
 FROM ExchangeRates
+"""
+#
+#CREATE TABLE ExchangeRates (
+#    id INT NOT NULL AUTO_INCREMENT,
+#    currency_from VARCHAR(128) NOT NULL,
+#    currency_to VARCHAR(128) NOT NULL,
+#    bid FLOAT NOT NULL,
+#    ask FLOAT NOT NULL,
+#    time DATETIME NOT NULL,
+#    PRIMARY KEY (id)
+#)
+add_exchange_rate =\
+"""
+INSERT INTO ExchangeRates (currency_from, currency_to, bid, ask, time)
+    VALUES(%s, %s, %s, %s, %s)
+"""
+
+
+# Account related queries
+create_account =\
+"""
+INSERT INTO Accounts(user_id, account_name, available_equity, open_date)
+    VALUES(%s, %s, %s, %s)
+"""
+
+delete_account =\
+"""
+DELETE FROM Accounts
+WHERE user_id = %s AND id = %s
+"""
+
+get_account_info_from_uid_accname =\
+"""
+SELECT *
+FROM Accounts
+WHERE user_id = %s AND account_name = %s
+"""
+
+get_account_info_from_uid_accid =\
+"""
+SELECT *
+FROM Accounts
+WHERE user_id = %s AND id = %s
+"""
+
+get_user_accounts =\
+"""
+SELECT *
+FROM Accounts
+WHERE user_id = %s
 """
