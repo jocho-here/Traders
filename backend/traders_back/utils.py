@@ -16,6 +16,12 @@ ERR_ACCOUNT_ID = 'User with such account id does not exist'
 def get_date_time():
     return time.strftime('%Y-%m-%d %H:%M:%S')
 
+def datetime_type_exchange(dt):
+    if type(dt) is str:
+        return time.strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        return str(dt)
+
 # Receive request data
 def get_req_data():
     req = None

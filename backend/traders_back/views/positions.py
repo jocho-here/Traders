@@ -17,9 +17,8 @@ def position_management(user_id, account_id):
     elif request.method == 'POST':
         if 'currency_from' in req and 'currency_to' in req and \
            'time' in req and 'position_type' in req and 'volume' in req:
-
             rtn_val = manage.create_position(\
-                          account_id, req['currency_from'], req['currency_to'], req['time'], \
+                          account_id, req['currency_from'].strip(), req['currency_to'].strip(), req['time'].strip(), \
                           req['position_type'], req['volume']\
                       )
         else:
@@ -61,16 +60,17 @@ def positions_status(user_id, account_id, status):
 @positions.route('/users/<int:user_id>/accounts/<int:account_id>/positions/<int:position_id>', methods=['GET', 'PUT'])
 def specific_position(user_id, account_id, position_id):
     rtn_val = {}
+    req = utils.get_req_data()
 
     # TODO:Check if user_id and account_id are together
     # TODO:Check if account_id and position_id are together
     if request.method == 'GET':
         rtn_val = manage.get_position_from_id(position_id)
     elif request.method == 'PUT':
-        if 'close_rate_id' in req:
-            rtn_val = manage.close_position(position_id, req['close_rate_id'])
+        if 'close_rate_time' in req and 'open_rate_id' in req:
+            rtn_val = manage.close_position(position_id, req['open_rate_id'], req['close_rate_time'])
         else:
             rtn_val['status'] = False
-            rtn_val['message'] = "Request is missing close_time"
+            rtn_val['message'] = "Request is missing close_rate_time"
 
     return jsonify(rtn_val)

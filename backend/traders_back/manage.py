@@ -63,7 +63,7 @@ def get_exchange_rates(currency_from, currency_to, from_time=None, to_time=None,
             curr_rate['id'] = rate['id']
             curr_rate['bid'] = rate['bid']
             curr_rate['ask'] = rate['ask']
-            curr_rate['time'] = str(rate['time'])
+            curr_rate['time'] = utils.datetime_type_exchange(rate['time'])
             rtn_val['exchange_rates'].append(curr_rate)
 
         if time:
@@ -94,20 +94,28 @@ def create_position(account_id, currency_from, currency_to, time, position_type,
         
     return rtn_val
 
-def close_position(position_id, close_rate_id):
+def close_position(position_id, open_rate_id, close_rate_time):
     rtn_val = {}
-    modified_query = raw_queries.get_exchange_rate
-    close_rate = get_exchange_rate_by_id(close_rate_id)
+
+    open_rate = get_exchange_rate_by_id(open_rate_id)['exchange_rate']
+    close_rate = get_exchange_rates(open_rate['currency_to'], open_rate['currency_from'], time=close_rate_time)
+    print(close_rate)
 
     if close_rate['status']:
         position = get_position(position_id)['position']
         close_rate = close_rate['exchange_rate']
-        open_rate = get_exchange_rate_by_id(position['open_rate_id'])['exchange_rate']
-        if open_rate['time'] > close_rate['time']:
+
+        if type(open_rate['time']) is str:
+            open_rate['time'] = utils.datetime_type_exchange(open_rate['time'])
+
+        if type(close_rate['time']) is str:
+            open_rate['time'] = utils.datetime_type_exchange(close_rate['time'])
+
+        if open_rate['time'] < close_rate['time']:
             rtn_val['status'] = False
             rtn_val['message'] = "Closing exchange rate is earlier than the opening exchange rate"
         else:
-            result = setter_db(raw_queries.close_position_with_id, (close_rate_id, "closed", position_id))
+            result = setter_db(raw_queries.close_position_with_id, (close_rate['id'], "closed", position_id))
 
             if result['status']:
                 rtn_val['status'] = True
@@ -118,8 +126,9 @@ def close_position(position_id, close_rate_id):
                 rtn_val['result'] = result
     else:
         rtn_val['status'] = False
-        rtn_val['message'] = "Exchange rate with the given close_rate_id does not exist"
+        rtn_val['message'] = "Exchange rate with the given close_rate_time does not exist"
 
+    print(rtn_val)
     return rtn_val
 
 def get_position(position_id):
@@ -162,9 +171,19 @@ def get_positions(account_id, from_date=None, to_date=None, status=None):
 
         for pos in result['result']:
             curr_pos = {}
+            open_rate = get_exchange_rate_by_id(pos['open_rate_id'])['exchange_rate']
             curr_pos['id'] = pos['id']
+            curr_pos['currency_from'] = open_rate['currency_from']
+            curr_pos['currency_to'] = open_rate['currency_to']
             curr_pos['open_rate_id'] = pos['open_rate_id']
+            curr_pos['open_rate_time'] = utils.datetime_type_exchange(open_rate['time'])
             curr_pos['close_rate_id'] = pos['close_rate_id']
+
+            if pos['close_rate_id'] != None:
+                curr_pos['close_rate_time'] = utils.datetime_type_exchange(get_exchange_rate_by_id(pos['close_rate_id'])['exchange_rate']['time'])
+            else:
+                curr_pos['close_rate_time'] = None
+
             curr_pos['position_type'] = pos['position_type']
             curr_pos['position_status'] = pos['position_status']
             curr_pos['volume'] = pos['volume']

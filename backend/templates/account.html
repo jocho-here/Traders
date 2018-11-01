@@ -38,27 +38,31 @@
   
   <a class = "text"><pre> <u>From</u>          <u>To</u><br/></pre></a>
     <select id="currency_from">
-      <option value="USD">USD</option>
-      <option value="CHN">CHN</option>
-      <option value="GBP">GBP</option>
-      <option value="EUR">EUR</option>
-      <option value="EUR">GER</option>
+      <option value="usd">usd</option>
+      <option value="gbp">gbp</option>
+      <option value="chn">chn</option>
+      <option value="eur">eur</option>
+      <option value="eur">ger</option>
     </select>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <select id="currency_to">
-      <option value="GBP">GBP</option>
-      <option value="USD">USD</option>
-      <option value="CHN">CHN</option>
-      <option value="EUR">EUR</option>
-      <option value="GER">GER</option>
+      <option value="gbp">gbp</option>
+      <option value="usd">usd</option>
+      <option value="chn">chn</option>
+      <option value="eur">eur</option>
+      <option value="ger">ger</option>
     </select>
     <script>
     
     var save = function(){
-    	var start = document.getElementById("start")
-    	var end = document.getElementById("end")
-    	localStorage.setItem("start", start.value)	
-    	localStorage.setItem("end", end.value)
+    	var start = document.getElementById("start").value;
+    	var end = document.getElementById("end").value;
+        var currency_from = document.getElementById("currency_from").value;
+        var currency_to = document.getElementById("currency_to").value;
+    	localStorage.setItem("start", start);
+    	localStorage.setItem("end", end);
+    	localStorage.setItem("curr_from", currency_from);
+    	localStorage.setItem("curr_to", currency_to);
     	window.location.reload()
     }
     </script>
@@ -75,8 +79,11 @@
 
     <br/>
 <script>
- var s = localStorage.getItem("start")
- var e = localStorage.getItem("end")	
+ var s = localStorage.getItem("start");
+ var e = localStorage.getItem("end");
+ var curr_f = localStorage.getItem("curr_from");
+ var curr_t = localStorage.getItem("curr_to");
+
  function httpGet(theUrl)
 {
     var xmlHttp = new XMLHttpRequest();
@@ -84,18 +91,19 @@
     xmlHttp.send( null );
     return xmlHttp.responseText;
 }
-var ret = httpGet("http://localhost:8080/exchangerates/currency_from/usd/currency_to/gbp/from_time/"+ s + "/to_time/" + e);
+var ret = httpGet("http://localhost:8080/exchangerates/currency_from/" + curr_f + "/currency_to/" + curr_t + "/from_time/"+ s + "/to_time/" + e);
 var c = JSON.parse(ret);
+
 function purchase(row)
 {
-    var curr_from = document.getElementById('currency_from').value;
-    var curr_to = document.getElementById('currency_to').value;
-    var time = document.getElementById('rate_table').rows[row].cells[2].innerText
-    var volume = document.getElementById('volume').value
+    var curr_from = document.getElementById('rate_table').rows[row].cells[0].innerText;
+    var curr_to = document.getElementById('rate_table').rows[row].cells[1].innerText;
+    var time = document.getElementById('rate_table').rows[row].cells[2].innerText;
+    var volume = document.getElementById('volume_'+row).value;
 
     var xmlHttp = new XMLHttpRequest();
     var url = "http://localhost:8080/users/1/accounts/1/positions";
-    xmlHttp.open("POST", url, true); // false for synchronous request
+    xmlHttp.open("POST", url, false); // false for synchronous request
     xmlHttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xmlHttp.send(JSON.stringify({"volume":volume, "currency_from":curr_from,"currency_to":curr_to,"time":time,"position_type":"long"}));
     var result = xmlHttp.responseText;
@@ -103,6 +111,25 @@ function purchase(row)
     window.location.reload()
     return result;
 }
+
+function sell(row)
+{
+    var close_time = document.getElementById('close_time_' + row).value;
+    var position_id = document.getElementById('position_id_' + row).value;
+    var open_rate_id = document.getElementById('open_rate_id_' + row).value;
+    
+    var xmlHttp = new XMLHttpRequest();
+    var url = "http://localhost:8080/users/1/accounts/1/positions/" + position_id;
+
+    xmlHttp.open("PUT", url, false); // false for synchronous request
+    xmlHttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xmlHttp.send(JSON.stringify({"close_rate_time":close_time, "open_rate_id":open_rate_id}));
+    var result = xmlHttp.responseText;
+
+    window.location.reload()
+    return result;
+}
+
 document.write("<a class = 'black'> <b> Rate Table </b> </a> <table id='rate_table'>")
 document.write("  <tr> <th>From</th> <th>To</th> <th>Time</th> <th>Rate</th> <th>Volume</th> <th>Buy</th></tr>")
 for(var i = 0; i < c.exchange_rates.length; i++){
@@ -111,26 +138,29 @@ for(var i = 0; i < c.exchange_rates.length; i++){
 	document.write("<td>" + c.currency_to + "</td>");
     document.write("<td><p id='time'>" + c.exchange_rates[i].time + "</p></td>");
 	document.write("<td>" + c.exchange_rates[i].bid + "</td>");
-	document.write("<td> <input type='text' name='volume' id='volume'>");
+	document.write("<td> <input type='text' id='volume_" + (i+1) + "'>");
     document.write("<td> <button type='button' onclick='purchase(" + (i+1) + ")'>Buy</button></td>");
 	document.write("</tr>")
 }
 var f = c;
 document.write("</table> <br/>")
-document.write("<a class = 'black'> <b> Position Table </b> </a> <table>");
+document.write("<a class = 'black'> <b> Position Table </b> </a> <table id='position_table'>");
 ret = httpGet("http://localhost:8080/users/1/accounts/1/positions");
 c = JSON.parse(ret);
-document.write("<tr> <th>From</th> <th>To</th> <th>Time</th> <th>Rate</th> <th>Volume</th> <th>Sell</th></tr>");
+document.write("<tr> <th>From</th> <th>To</th> <th>Open Time</th> <th>Volume</th> <th>Close Time</th></tr>");
 for(var i = 0; i < c.positions.length; i++){
-    document.write("<tr>")
-	document.write("<td>" + f.currency_from + "</td>");
-	document.write("<td>" + f.currency_to + "</td>");
-	document.write("<td> FUTURE </td>");
-	document.write("<td>" + c.positions[i].open_rate_id + "</td>");
-	document.write("<td>" + c.positions[i].volume + "</td>");
-	document.write("<td><input type='submit' value='Sell'></td>");
-	document.write("</tr>")
-	
+    if (c.positions[i].close_rate_id == null) {
+        document.write("<tr>");
+        document.write("<input type='hidden' id='position_id_" + (i+1) +"'" + (i+1) + "' value='" + c.positions[i].id+ "'>");
+        document.write("<input type='hidden' id='open_rate_id_" + (i+1) +"'" + (i+1) + "' value='" + c.positions[i].open_rate_id+ "'>");
+        document.write("<td>" + c.positions[i].currency_from + "</td>");
+        document.write("<td>" + c.positions[i].currency_to + "</td>");
+        document.write("<td>" + c.positions[i].open_rate_time + "</td>");
+        document.write("<td>" + c.positions[i].volume + "</td>");
+        document.write("<td> <input type='text' id='close_time_" + (i+1) + "'> </td>");
+        document.write("<td> <button type='button' onclick='sell(" + (i+1) + ")'>Sell</button></td>");
+        document.write("</tr>")
+    }
 }
 
 var domain = window.location.hostname;

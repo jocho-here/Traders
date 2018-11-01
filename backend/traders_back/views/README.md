@@ -163,8 +163,12 @@ If you want to see positions that are with certain status, make a request to
             "positions": [
                 {
                     "id": 1,
+                    "currency_from": "gbp",
+                    "currency_to": "usd",
                     "open_rate_id": 1,
+                    "open_rate_time": 2018-10-10 11:11:11,
                     "close_rate_id": null,
+                    "close_rate_time": null,
                     "position_type": "short",
                     "position_status": "open",
                     "volume": 123.3
@@ -233,7 +237,8 @@ Code Representation
 + Request Body (application/json)
 
         {
-            "close_rate_id": 1
+            "close_rate_time": 2018-10-10 11:11:11,
+            "open_rate_id": 1
         }
 
 + Response 200 (application/json)

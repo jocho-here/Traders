@@ -30,8 +30,8 @@ exchange_rates =\
         'time':'2018-01-01 11:11:11'
     },
     {
-        'currency_from':'gbp',
-        'currency_to':'usd',
+        'currency_to':'gbp',
+        'currency_from':'usd',
         'bid':13.8,
         'ask':13.8,
         'time':'2018-01-02 11:11:11'
@@ -44,8 +44,8 @@ exchange_rates =\
         'time':'2018-01-03 11:11:11'
     },
     {
-        'currency_from':'gbp',
-        'currency_to':'usd',
+        'currency_to':'gbp',
+        'currency_from':'usd',
         'bid':13.8,
         'ask':13.8,
         'time':'2018-01-04 11:11:11'
@@ -58,22 +58,22 @@ exchange_rates =\
         'time':'2018-01-05 11:11:11'
     },
     {
-        'currency_from':'usd',
-        'currency_to':'gbp',
+        'currency_to':'usd',
+        'currency_from':'gbp',
         'bid':13.8,
         'ask':13.8,
         'time':'2018-01-06 11:11:11'
     },
     {
-        'currency_from':'usd',
-        'currency_to':'gbp',
+        'currency_to':'usd',
+        'currency_from':'gbp',
         'bid':13.8,
         'ask':13.8,
         'time':'2018-01-07 11:11:11'
     },
     {
-        'currency_from':'usd',
-        'currency_to':'gbp',
+        'currency_to':'usd',
+        'currency_from':'gbp',
         'bid':13.8,
         'ask':13.8,
         'time':'2018-01-08 11:11:11'
