@@ -108,8 +108,11 @@ email, username, password, last_login) values (
 """,
 """
 INSERT INTO Accounts (
-user_id, account_name, open_date) values (
-1, 'root_account', '2018-10-10 11:11:11')
+user_id, account_name, available_equity, open_date) values (
+1, 'root_account', 1000.00, '2018-10-10 11:11:11')
+""",
+"""
+INSERT INTO ExchangeRates (currency_from, currency_to, bid, ask, time) values ('usd', 'gbp', 1, 1, '2018-10-10 11:11:11');
 """
 ]
 
