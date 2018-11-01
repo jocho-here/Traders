@@ -50,7 +50,7 @@ def get_exchange_rates(currency_from, currency_to, from_time=None, to_time=None,
 
     result = getter_db(modified_query, data=tuple(data))
 
-    if result['status']:
+    if result['status'] and len(result['result']) > 0:
         rtn_val['status'] = True
         rtn_val['currency_from'] = currency_from
         rtn_val['currency_to'] = currency_to
@@ -72,7 +72,8 @@ def get_exchange_rates(currency_from, currency_to, from_time=None, to_time=None,
         if time:
             rtn_val['exchange_rate'] = rtn_val.pop('exchange_rates')[0]
     else:
-        rtn_val = result
+        rtn_val['status'] = False
+        rtn_val['message'] = "Could not find the given exchange rate"
 
     return rtn_val
 
