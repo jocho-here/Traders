@@ -241,7 +241,7 @@ def get_user_accounts(uid):
         rtn_val['status'] = True
     else:
         rtn_val['status'] = False
-        rtn_val['message'] = result['message']
+        rtn_val['message'] = "Could not find the user with the user id"
         return rtn_val
     
     rtn_val["accounts"] = []
