@@ -63,7 +63,7 @@ def get_exchange_rates(currency_from, currency_to, from_time=None, to_time=None,
             curr_rate['id'] = rate['id']
             curr_rate['bid'] = rate['bid']
             curr_rate['ask'] = rate['ask']
-            curr_rate['time'] = rate['time']
+            curr_rate['time'] = str(rate['time'])
             rtn_val['exchange_rates'].append(curr_rate)
 
         if time:

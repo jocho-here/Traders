@@ -37,7 +37,7 @@
 <fieldset class = "field">
   
   <a class = "text"><pre> <u>From</u>          <u>To</u><br/></pre></a>
-    <select>
+    <select id="currency_from">
       <option value="USD">USD</option>
       <option value="CHN">CHN</option>
       <option value="GBP">GBP</option>
@@ -45,10 +45,10 @@
       <option value="EUR">GER</option>
     </select>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <select>
+    <select id="currency_to">
+      <option value="GBP">GBP</option>
       <option value="USD">USD</option>
       <option value="CHN">CHN</option>
-      <option value="GBP">GBP</option>
       <option value="EUR">EUR</option>
       <option value="GER">GER</option>
     </select>
@@ -66,15 +66,15 @@
       <br/>
       <a class = "black">
       Start Date_Time: <br/>
-      <input id = "start" type="text" name="start" value="2018-10-30_17:26:34"> <br/>
+      <input id = "start" type="text" name="start" value="2000-10-30_17:26:34"> <br/>
       End Date_Time: <br/>
-      <input id = "end" type="text" name="end" value="2018-11-30_17:26:34"><br>
+      <input id = "end" type="text" name="end" value="2020-11-30_17:26:34"><br>
       </a>
       <br/>
       <button onclick="save()" class="btn dropbtn">Find</button>
 
     <br/>
- <script>
+<script>
  var s = localStorage.getItem("start")
  var e = localStorage.getItem("end")	
  function httpGet(theUrl)
@@ -86,16 +86,33 @@
 }
 var ret = httpGet("http://localhost:8080/exchangerates/currency_from/usd/currency_to/gbp/from_time/"+ s + "/to_time/" + e);
 var c = JSON.parse(ret);
-document.write("<a class = 'black'> <b> Rate Table </b> </a> <table>")
+function purchase(row)
+{
+    var curr_from = document.getElementById('currency_from').value;
+    var curr_to = document.getElementById('currency_to').value;
+    var time = document.getElementById('rate_table').rows[row].cells[2].innerText
+    var volume = document.getElementById('volume').value
+
+    var xmlHttp = new XMLHttpRequest();
+    var url = "http://localhost:8080/users/1/accounts/1/positions";
+    xmlHttp.open("POST", url, true); // false for synchronous request
+    xmlHttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xmlHttp.send(JSON.stringify({"volume":volume, "currency_from":curr_from,"currency_to":curr_to,"time":time,"position_type":"long"}));
+    var result = xmlHttp.responseText;
+
+    window.location.reload()
+    return result;
+}
+document.write("<a class = 'black'> <b> Rate Table </b> </a> <table id='rate_table'>")
 document.write("  <tr> <th>From</th> <th>To</th> <th>Time</th> <th>Rate</th> <th>Volume</th> <th>Buy</th></tr>")
 for(var i = 0; i < c.exchange_rates.length; i++){
 	document.write("<tr>")
 	document.write("<td>" + c.currency_from + "</td>");
 	document.write("<td>" + c.currency_to + "</td>");
-	document.write("<td>" + c.exchange_rates[i].time + "</td>");
+    document.write("<td><p id='time'>" + c.exchange_rates[i].time + "</p></td>");
 	document.write("<td>" + c.exchange_rates[i].bid + "</td>");
-	document.write("<td> <input type='text' name = 'V" + i + "'></td>");
-	document.write("<td> <input type='submit' value='Buy'></td>");
+	document.write("<td> <input type='text' name='volume' id='volume'>");
+    document.write("<td> <button type='button' onclick='purchase(" + (i+1) + ")'>Buy</button></td>");
 	document.write("</tr>")
 }
 var f = c;
