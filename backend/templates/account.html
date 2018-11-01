@@ -175,13 +175,13 @@ var params = {
 http.open('POST', url, false);
 //Send the proper header information along with the request
 http.setRequestHeader('Content-type', 'application/json');
-//http.send(JSON.stringify(params))
+
 http.onreadystatechange = function(e) {//Call a function when the state changes.
     if(http.readyState == 4 && http.status == 200) {
         console.log(http.responseText);
     }
 }
-
+http.send(JSON.stringify(params))
 
 
 document.write(params.currency_from)
