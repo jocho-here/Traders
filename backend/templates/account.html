@@ -20,22 +20,49 @@
 
 <nav align = right class="filler">
  <div align = left class = "title"> Traders Capital </div>
- <span class="dropdown">
- <button onclick="myFunction()" class="btn dropbtn">Accounts</button>
-  <div id="myDropdown" class="dropdown-content">
-    <a href="#home">Account 1</a>
-    <a href="#about">Account 2</a>
-    <a href="#contact">Account 3</a>
-  </div>
-</span>
- &nbsp;&nbsp;&nbsp;&nbsp;
  <a class="btn btn-secondary2" href="/js/">History</a>                    
  &nbsp;&nbsp;&nbsp;&nbsp;
  <a class="btn btn-secondary" href="/pl/logout">Log Out</a>
 </nav>
 <br/>
+
+
 <fieldset class = "field">
-  
+
+<script>
+var ID = localStorage.getItem("ID")
+if(ID == null){
+	ID = 1;
+}
+function changeAccount(cID){
+	localStorage.setItem("ID", cID);	
+	window.location.reload();
+}
+
+var xmlHttp = new XMLHttpRequest();
+var url  = "http://localhost:8080/signin"
+var temp = {"email":"mcho1@illinois.edu","password":"jo1"}
+xmlHttp.open("POST", url, false); // false for synchronous request
+xmlHttp.setRequestHeader("Content-Type", "Accept: application/json;charset=UTF-8");
+xmlHttp.overrideMimeType("application/json");
+document.write("<a class = 'black'> <b> Accounts </b> </a> <br/><br/> <table id='rate_table'>")
+document.write("  <tr> <th>Account ID </th> <th> View </th> </tr>")
+
+xmlHttp.onreadystatechange = function(e) {//Call a function when the state changes.
+    if(xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+    	var res  = xmlHttp.responseText;
+    	var resp = JSON.parse(res);
+        var IDS = resp.account_ids;
+        for(var i = 0; i < IDS.length; i++){
+        	document.write("<tr> <td> <center> " + IDS[i] + " </center> </td> <td> <button type='button' onclick='changeAccount(" + IDS[i] +  ")'> View </button></td></tr>")
+        }
+        document.write("</table>")
+    }
+}
+xmlHttp.send(JSON.stringify(temp));
+</script>
+  <br/>
+  <br/>
   <a class = "text"><pre> <u>From</u>          <u>To</u><br/></pre></a>
     <select id="currency_from">
       <option value="usd">usd</option>
@@ -67,17 +94,18 @@
     }
     </script>
  
-      <br/>
-      <a class = "black">
-      Start Date_Time: <br/>
-      <input id = "start" type="text" name="start" value="2000-10-30_17:26:34"> <br/>
-      End Date_Time: <br/>
-      <input id = "end" type="text" name="end" value="2020-11-30_17:26:34"><br>
-      </a>
-      <br/>
-      <button onclick="save()" class="btn dropbtn">Find</button>
 
-    <br/>
+<br/>
+<a class = "black">
+Start Date_Time: <br/>
+<input id = "start" type="text" name="start" value="2000-10-30_17:26:34"> <br/>
+End Date_Time: <br/>
+<input id = "end" type="text" name="end" value="2020-11-30_17:26:34"><br>
+ </a>
+<br/>
+<button onclick="save()" class="btn dropbtn">Find</button>
+<br/>
+
 <script>
  var s = localStorage.getItem("start");
  var e = localStorage.getItem("end");
@@ -102,7 +130,7 @@ function purchase(row)
     var volume = document.getElementById('volume_'+row).value;
 
     var xmlHttp = new XMLHttpRequest();
-    var url = "http://localhost:8080/users/1/accounts/1/positions";
+    var url = "http://localhost:8080/users/1/accounts/" + ID + "/positions";
     xmlHttp.open("POST", url, false); // false for synchronous request
     xmlHttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xmlHttp.send(JSON.stringify({"volume":volume, "currency_from":curr_from,"currency_to":curr_to,"time":time,"position_type":"long"}));
@@ -119,17 +147,16 @@ function sell(row)
     var open_rate_id = document.getElementById('open_rate_id_' + row).value;
     
     var xmlHttp = new XMLHttpRequest();
-    var url = "http://localhost:8080/users/1/accounts/1/positions/" + position_id;
+    var url = "http://localhost:8080/users/1/accounts/" + ID+ "/positions/" + position_id;
 
     xmlHttp.open("PUT", url, false); // false for synchronous request
     xmlHttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xmlHttp.send(JSON.stringify({"close_rate_time":close_time, "open_rate_id":open_rate_id}));
     var result = xmlHttp.responseText;
-
     window.location.reload()
     return result;
 }
-
+document.write("<br/>")
 document.write("<a class = 'black'> <b> Rate Table </b> </a> <table id='rate_table'>")
 document.write("  <tr> <th>From</th> <th>To</th> <th>Time</th> <th>Rate</th> <th>Volume</th> <th>Buy</th></tr>")
 for(var i = 0; i < c.exchange_rates.length; i++){
@@ -145,9 +172,9 @@ for(var i = 0; i < c.exchange_rates.length; i++){
 var f = c;
 document.write("</table> <br/>")
 document.write("<a class = 'black'> <b> Position Table </b> </a> <table id='position_table'>");
-ret = httpGet("http://localhost:8080/users/1/accounts/1/positions");
+ret = httpGet("http://localhost:8080/users/1/accounts/"+ID+"/positions");
 c = JSON.parse(ret);
-document.write("<tr> <th>From</th> <th>To</th> <th>Open Time</th> <th>Volume</th> <th>Close Time</th></tr>");
+document.write("<tr> <th>From</th> <th>To</th> <th>Open Time</th> <th>Volume</th> <th>Close Time</th> <th> Sell </th> </tr>");
 for(var i = 0; i < c.positions.length; i++){
     if (c.positions[i].close_rate_id == null) {
         document.write("<tr>");
@@ -162,29 +189,6 @@ for(var i = 0; i < c.positions.length; i++){
         document.write("</tr>")
     }
 }
-
-var domain = window.location.hostname;
-var port = window.location.port;
-var protocal = window.location.protocol;
-console.log(domain, port);
-var url = "http://localhost:8080/users/1/accounts/1/positions"
-var http = new XMLHttpRequest();
-var params = {
-"currency_from":"usd", "currency_to":"gbp","time": "2018-10-10 11:11:11", "position_type": "short", "volume": 123.3
-};
-http.open('POST', url, false);
-//Send the proper header information along with the request
-http.setRequestHeader('Content-type', 'application/json');
-
-http.onreadystatechange = function(e) {//Call a function when the state changes.
-    if(http.readyState == 4 && http.status == 200) {
-        console.log(http.responseText);
-    }
-}
-http.send(JSON.stringify(params))
-
-
-document.write(params.currency_from)
  </script>
 </fieldset>
 <br/>
