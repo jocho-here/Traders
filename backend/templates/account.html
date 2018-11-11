@@ -47,12 +47,13 @@ xmlHttp.setRequestHeader("Content-Type", "Accept: application/json;charset=UTF-8
 xmlHttp.overrideMimeType("application/json");
 document.write("<a class = 'black'> <b> Accounts </b> </a> <br/><br/> <table id='rate_table'>")
 document.write("  <tr> <th>Account ID </th> <th> View </th> </tr>")
-
+var userID = 0;
 xmlHttp.onreadystatechange = function(e) {//Call a function when the state changes.
     if(xmlHttp.readyState == 4 && xmlHttp.status == 200) {
     	var res  = xmlHttp.responseText;
     	var resp = JSON.parse(res);
-        var IDS = resp.account_ids;
+        var IDS  = resp.account_ids;
+        userID   = resp.user_id;
         for(var i = 0; i < IDS.length; i++){
         	document.write("<tr> <td> <center> " + IDS[i] + " </center> </td> <td> <button type='button' onclick='changeAccount(" + IDS[i] +  ")'> View </button></td></tr>")
         }
@@ -130,7 +131,7 @@ function purchase(row)
     var volume = document.getElementById('volume_'+row).value;
 
     var xmlHttp = new XMLHttpRequest();
-    var url = "http://localhost:8080/users/1/accounts/" + ID + "/positions";
+    var url = "http://localhost:8080/users/" +userID+ "/accounts/" + ID + "/positions";
     xmlHttp.open("POST", url, false); // false for synchronous request
     xmlHttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xmlHttp.send(JSON.stringify({"volume":volume, "currency_from":curr_from,"currency_to":curr_to,"time":time,"position_type":"long"}));
@@ -147,7 +148,7 @@ function sell(row)
     var open_rate_id = document.getElementById('open_rate_id_' + row).value;
     
     var xmlHttp = new XMLHttpRequest();
-    var url = "http://localhost:8080/users/1/accounts/" + ID+ "/positions/" + position_id;
+    var url = "http://localhost:8080/users/"+userID+"/accounts/" + ID+ "/positions/" + position_id;
 
     xmlHttp.open("PUT", url, false); // false for synchronous request
     xmlHttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
@@ -172,7 +173,7 @@ for(var i = 0; i < c.exchange_rates.length; i++){
 var f = c;
 document.write("</table> <br/>")
 document.write("<a class = 'black'> <b> Position Table </b> </a> <table id='position_table'>");
-ret = httpGet("http://localhost:8080/users/1/accounts/"+ID+"/positions");
+ret = httpGet("http://localhost:8080/users/"+userID+"/accounts/"+ID+"/positions");
 c = JSON.parse(ret);
 document.write("<tr> <th>From</th> <th>To</th> <th>Open Time</th> <th>Volume</th> <th>Close Time</th> <th> Sell </th> </tr>");
 for(var i = 0; i < c.positions.length; i++){
