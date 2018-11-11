@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+  <title>Account</title>
+      <link rel="stylesheet" href="">
+</head>
+
+<body>
+<a class = "text"><pre> <u>From</u>          <u>To</u><br/></pre></a>
+    <select id="currency_from">
+      <option value="usd">usd</option>
+      <option value="gbp">gbp</option>
+      <option value="chn">chn</option>
+      <option value="eur">eur</option>
+      <option value="eur">ger</option>
+    </select>
+    <select id="currency_to">
+      <option value="gbp">gbp</option>
+      <option value="usd">usd</option>
+      <option value="chn">chn</option>
+      <option value="eur">eur</option>
+      <option value="ger">ger</option>
+    </select>
+</br></br>
+<button onclick="getExchangeRate()">Find</button>
+
+</br></br>
+<a> <b> Rate Table </b> </a> 
+<br/><br/>
+<table  id='rate_table'>
+    <th>From</th>
+    <th>To</th> 
+    <th>Time</th>
+    <th>Rate</th>
+    <th>Volumn</th>
+    <th>Buy</th>
+
+</table> 
+</br></br></br>
+
+<a> <b> Position Table </b> </a> 
+<br/><br/>
+<table  id='position_table'>
+  <tr>
+    <th>From</th>
+    <th>To</th> 
+    <th>Open Time</th>
+    <th>Volumn</th>
+    <th>Close</th>
+  </tr>
+</table> 
+
+
+</body>
+<script>
+const origin = location.origin;
+const accounts = {{ account_info | tojson | safe }};
+const uid = {{ uid }} , accid = accounts[0]['id'];
+
+//TODO: Simply use globla to keep track of exchange rates, should be changed to a better way later on
+var exchangeRates, from, to, positions; 
+
+startUp();
+
+function startUp () {
+//TODO: On page load, fill table, and do something else
+    getExchangeRate();
+    update_position_table();
+}
+
+
+function getExchangeRate() {
+//TODO: change from, to parameter to match selection
+    var c_from = document.getElementById( "currency_from" );
+    from = c_from.options[ c_from.selectedIndex ].value;
+    var c_to = document.getElementById( "currency_to" );
+    to = c_to.options[ c_to.selectedIndex ].value;
+
+    var from_time = "2018-01-01_11:11:11", to_time = "2018-01-08_11:11:11";
+
+    var url = origin + '/exchangerates/currency_from/' + from + '/currency_to/' + to + '/from_time/' + from_time + '/to_time/' + to_time;
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+           var response = JSON.parse( xhttp.responseText );
+           if (response['status']) {
+            fillExchangeTable(response);
+           } else {
+            alert(response['message']);
+           }
+        }
+    };
+    xhttp.open('GET', url, true);
+    xhttp.send();
+}
+
+function fillExchangeTable(rows) { 
+    var table = document.getElementById("rate_table");
+    reset_table(table);
+    exchangeRates = rows['exchange_rates'];
+    from = rows['currency_from'], to = rows['currency_to'];
+    
+    for (var i=0; i<exchangeRates.length; i++) {
+        var row = table.insertRow(i+1);
+        var cell0 = row.insertCell(0);
+        var cell1 = row.insertCell(1);
+        var cell2 = row.insertCell(2);
+        var cell3 = row.insertCell(3);
+        var cell4 = row.insertCell(4);
+        var cell5 = row.insertCell(5);
+        cell0.innerHTML = from;
+        cell1.innerHTML = to;
+        cell2.innerHTML = exchangeRates[i]['time'];
+        cell3.innerHTML = exchangeRates[i]['bid'];
+        cell4.innerHTML = '<input type=number id=volume_' + i + ' />';
+        cell5.innerHTML = '<button type="button" onclick="buy('+i+')"> Buy </button>';
+    }
+}
+
+function buy(i) {
+    var volumn = Number(document.getElementById('volume_'+i).value);
+    if (! Number.isInteger(volumn)) {
+        alert('volume number not valid');
+        return;
+    }
+    volumn = parseInt(volumn);
+    if (volumn <= 0) {
+        alert('invalid volumn');
+        return;
+    }
+    var url = origin + '/users/' + uid + '/accounts/' + accid + '/positions';
+    var params = {
+      "currency_from": from,
+      "currency_to": to,
+      "time": exchangeRates[i]['time'],
+      "position_type": "long",
+      "volume": volumn
+    };
+    
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+           var response = JSON.parse( xhttp.responseText );
+           if (!response['status']) {
+                alert(response('message'));
+           } else {
+                //Why update again? Position could be partially filled.
+                update_position_table();
+           }
+        }
+    };
+    xhttp.open('POST', url, true);
+    xhttp.send(JSON.stringify(params));
+}
+
+function update_position_table() {
+    var table = document.getElementById("position_table");
+    reset_table(table);
+    var url = origin + '/users/' + uid + '/accounts/' + accid + '/positions';
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+           var response = JSON.parse( xhttp.responseText );
+           if ( response['status'] ) {
+                positions = response['positions'];
+                for (var i=0; i<positions.length; i++) {
+                    var row = table.insertRow(i+1);
+                    var cell0 = row.insertCell(0);
+                    var cell1 = row.insertCell(1);
+                    var cell2 = row.insertCell(2);
+                    var cell3 = row.insertCell(3);
+                    var cell4 = row.insertCell(4);
+                    var cell5 = row.insertCell(5);
+                    cell0.innerHTML = positions[i]['currency_from'];
+                    cell1.innerHTML = positions[i]['currency_to'];
+                    cell2.innerHTML = positions[i]['open_rate_time'];
+                    cell3.innerHTML = positions[i]['volume'];
+                    cell4.innerHTML = '<input type=text id=close_' + i + ' />';
+                    cell5.innerHTML = '<button type="button" onclick="sell('+i+')"> Close </button>';
+                }
+           } else {
+                alert(response['message']);
+           }
+        }
+    };
+    xhttp.open('GET', url, true);
+    xhttp.send();    
+    
+}
+
+function sell(i) {
+    //TODO: finish sell, unsure about current decision on how to sell
+    console.log('try sell');
+}
+
+
+// helper function reset table, leaves header alone
+function reset_table(table) {
+    if (! (table.rows.length == 1)) {
+        for (var i=0; i<table.rows.length+1; i++) {
+            table.deleteRow(1);
+        }
+    }
+}
+
+
+</script>
+
+
+
+
