@@ -1,5 +1,29 @@
 <!DOCTYPE html>
 <html lang="en" >
+<style>
+.slider {
+    -webkit-appearance: none;
+    width: 50%;
+    height: 10px;
+    border-radius: 5px;   
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%; 
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+
+
+</style>
 
 <head>
   <meta charset="UTF-8">
@@ -27,7 +51,11 @@
 <button onclick="getExchangeRate()">Find</button>
 
 </br></br>
-<a> <b> Rate Table </b> </a> 
+<a> <b> Rate Table </b> </a> (Virtual Time : <a id="virtual-time">None</a>)  
+<div>
+  <input type="range" min="1" max="100" value="49" class="slider" id="timer">
+</div>
+
 <br/><br/>
 <table  id='rate_table'>
     <th>From</th>
@@ -93,6 +121,7 @@ function getExchangeRate() {
            if (response['status']) {
            //console.log();
             //fillExchangeTable(response);
+            data = response['exchange_rates'];
               renderChart(response['exchange_rates']);
            } 
         }
@@ -209,34 +238,49 @@ function reset_table(table) {
 }
 
 
+//convert mysql dateime to javascript dates
+function datetimeToDate(datetime) {
+	return CanvasJS.formatDate(new Date(datetime), "hh:mm TT")
+}
+
 
 var duration = 3600; //in seconds
 //interval, how many seconds a point; prerender how many points, 
-var interval = 30, prerender = 60; 
-function renderChart(data) {
-
-var dps = []; // dataPoints
-
+var interval = 30, prerender = 60, updateInterval = 1000;
+var renderer; //timer
+/**
+	current: current point index,
+	currentInterval: current second, 
+	updateInterval: update frequecy in ms
+	dataLength: number of visible data 
+ */
+var current = prerender-1, currentInterval = prerender * interval, dataLength = 3600; 
+var chart, data = [], dps = [];
+ 
+function renderChart() {
 // prerender data for half and hour
 for (var i=0; i<prerender; i++) {
 	dps.push({
-		x: i,
+		label: datetimeToDate(data[i*interval]['time']),
 		y: data[i*interval]['bid']
 	});
 }
 
 for (var i=prerender; i<duration/interval; i++) {
 	dps.push({
-		x: i,
+		label: datetimeToDate(data[i*interval]['time']),
 		y: null
 	});
 }
 
-var chart = new CanvasJS.Chart("chartContainer", {
+chart = new CanvasJS.Chart("chartContainer", {
 	zoomEnabled: true,
 	title :{
-		text: "Dynamic Data"
+		text: from + '-' + to
 	},
+	axisX:{      
+            valueFormatString: "hh:mm TT" ,
+    },
 	axisY: {
 		includeZero: false
 	},      
@@ -247,32 +291,62 @@ var chart = new CanvasJS.Chart("chartContainer", {
 	}]
 });
 
-/**
-	current: current point index,
-	currentInterval: current second, 
-	updateInterval: update frequecy in ms
-	dataLength: number of visible data 
- */
-var current = prerender-1, currentInterval = prerender * interval, updateInterval = 1000, dataLength = 3600; 
+
+updateChart();
+renderer = setInterval(function(){updateChart()}, updateInterval);
+}
 
 var updateChart = function () {
 	currentInterval ++;
 	if (currentInterval > current * interval)
 		current ++;
-
-	yVal = data[currentInterval]['bid'];
-	dps[current]["y"] = yVal;
-
+	dps[current-1]["y"] = data[currentInterval]['bid'];
 	chart.render();
 	
-	if (currentInterval > dataLength) 
+	if (currentInterval >= dataLength) {
 		clearInterval(renderer);
+	}
+	document.getElementById("virtual-time").innerHTML=data[currentInterval]['time'];
 };
 
-updateChart(dataLength);
-var renderer = setInterval(function(){updateChart()}, updateInterval);
+//Speed up time flow
+function speedUpInterval() {
+	updateInterval /= 2;
+	clearInterval(renderer);
+	renderer = setInterval(function(){updateChart()}, updateInterval);
+}
+
+var slider = document.getElementById("timer");
+
+slider.oninput = function() {
+  var scale = this.value / 100;
+  var renderedPoints = Math.floor(scale * duration);
+  var index = Math.floor(scale * duration / interval);
+  if (current > index) {
+  	for(var i=index; i<current; i++) {
+		dps[i]["y"] = null;  	
+  	}
+  } else {
+  	for(var i=current; i<index; i++) {
+		dps[i]["y"] = data[i*interval]['bid'];  	
+  	}  
+  }
+  current = index;
+  chart.render();
+  currentInterval = renderedPoints;
+  document.getElementById("virtual-time").innerHTML=data[renderedPoints-1]['time'];
 
 }
+
+slider.onmouseup = function() {
+  if ( currentInterval < dataLength ) 
+  renderer = setInterval(function(){updateChart()}, updateInterval);
+}
+
+slider.onmousedown = function() {
+    clearInterval(renderer);
+}
+
 
 </script>
 
