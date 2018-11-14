@@ -46,7 +46,7 @@ var temp = {"email":"mcho1@illinois.edu","password":"jo1"}
 xmlHttp.open("POST", url, false); // false for synchronous request
 xmlHttp.setRequestHeader("Content-Type", "Accept: application/json;charset=UTF-8");
 xmlHttp.overrideMimeType("application/json");
-document.write("<a class = 'black'> <b> Accounts </b> </a> <br/><br/> <table id='rate_table'>")
+document.write("<a class = 'black'> <b> Accounts </b> </a> <br/><br/> <table id='account_table'>")
 document.write("  <tr> <th>Account ID </th> <th> View </th> </tr>")
 var userID = 0;
 xmlHttp.onreadystatechange = function(e) {//Call a function when the state changes.
