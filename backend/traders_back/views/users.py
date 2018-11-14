@@ -32,7 +32,7 @@ def get_account_info_help(uid):
 def user_page():
     uid = request.args.get('uid')
     acc = get_account_info_help(uid)
-    return render_template('account.html', account_info=acc)
+    return render_template('user_page.html', uid=uid, account_info=acc)
 
 @users.route('/users', methods=['POST', 'DELETE', 'GET'])
 def user_manipulation():

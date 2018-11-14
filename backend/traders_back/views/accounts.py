@@ -85,6 +85,13 @@ def sub_account(uid, accid):
         utils.setter_db(query, (date, accid))
         return jsonify(ret)
 	       
-	    
-	    
-	
+@accounts.route('/accounts')
+def get_accounts():
+    q = '''SELECt U.id, U.email, U.username, U.last_login, 
+        A.id, A.available_equity, 
+        A.account_name, A.open_date, A.close_Date 
+        FROM Users U JOIN Accounts A on U.Id=A.USER_ID'''
+    ret = utils.getter_db(q)
+    return jsonify(ret)
+    
+    

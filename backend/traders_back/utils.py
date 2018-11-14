@@ -56,7 +56,7 @@ def check_exist_db(sql, data=None):
 
 # Any query that requires changes in the DB
 def setter_db(sql, data=None):
-    rtn_val = {'status':False}
+    rtn_val = {'status':False, 'message':None}
     conn = get_conn()
 
     try:

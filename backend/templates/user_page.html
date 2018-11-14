@@ -36,6 +36,9 @@
     <th>Rate</th>
     <th>Volumn</th>
     <th>Buy</th>
+    
+<div id="chartContainer" style="height: 36%; width: 64%;"></div>    
+    
 
 </table> 
 </br></br></br>
@@ -57,6 +60,7 @@
 <script>
 const origin = location.origin;
 const accounts = {{ account_info | tojson | safe }};
+console.log(accounts);
 const uid = {{ uid }} , accid = accounts[0]['id'];
 
 //TODO: Simply use globla to keep track of exchange rates, should be changed to a better way later on
@@ -78,7 +82,7 @@ function getExchangeRate() {
     var c_to = document.getElementById( "currency_to" );
     to = c_to.options[ c_to.selectedIndex ].value;
 
-    var from_time = "2018-01-01_11:11:11", to_time = "2018-01-08_11:11:11";
+    var from_time = "2018-01-01_11:11:11", to_time = "2018-11-08_11:11:11";
 
     var url = origin + '/exchangerates/currency_from/' + from + '/currency_to/' + to + '/from_time/' + from_time + '/to_time/' + to_time;
 
@@ -87,10 +91,10 @@ function getExchangeRate() {
         if (this.readyState == 4 && this.status == 200) {
            var response = JSON.parse( xhttp.responseText );
            if (response['status']) {
-            fillExchangeTable(response);
-           } else {
-            alert(response['message']);
-           }
+           //console.log();
+            //fillExchangeTable(response);
+              renderChart(response['exchange_rates']);
+           } 
         }
     };
     xhttp.open('GET', url, true);
@@ -145,7 +149,7 @@ function buy(i) {
         if (this.readyState == 4 && this.status == 200) {
            var response = JSON.parse( xhttp.responseText );
            if (!response['status']) {
-                alert(response('message'));
+                console.log(response('message'));
            } else {
                 //Why update again? Position could be partially filled.
                 update_position_table();
@@ -181,9 +185,7 @@ function update_position_table() {
                     cell4.innerHTML = '<input type=text id=close_' + i + ' />';
                     cell5.innerHTML = '<button type="button" onclick="sell('+i+')"> Close </button>';
                 }
-           } else {
-                alert(response['message']);
-           }
+           } 
         }
     };
     xhttp.open('GET', url, true);
@@ -207,8 +209,75 @@ function reset_table(table) {
 }
 
 
+
+var duration = 3600; //in seconds
+//interval, how many seconds a point; prerender how many points, 
+var interval = 30, prerender = 60; 
+function renderChart(data) {
+
+var dps = []; // dataPoints
+
+// prerender data for half and hour
+for (var i=0; i<prerender; i++) {
+	dps.push({
+		x: i,
+		y: data[i*interval]['bid']
+	});
+}
+
+for (var i=prerender; i<duration/interval; i++) {
+	dps.push({
+		x: i,
+		y: null
+	});
+}
+
+var chart = new CanvasJS.Chart("chartContainer", {
+	zoomEnabled: true,
+	title :{
+		text: "Dynamic Data"
+	},
+	axisY: {
+		includeZero: false
+	},      
+	data: [{
+		markerType: "none", 
+		type: "line",
+		dataPoints: dps
+	}]
+});
+
+/**
+	current: current point index,
+	currentInterval: current second, 
+	updateInterval: update frequecy in ms
+	dataLength: number of visible data 
+ */
+var current = prerender-1, currentInterval = prerender * interval, updateInterval = 1000, dataLength = 3600; 
+
+var updateChart = function () {
+	currentInterval ++;
+	if (currentInterval > current * interval)
+		current ++;
+
+	yVal = data[currentInterval]['bid'];
+	dps[current]["y"] = yVal;
+
+	chart.render();
+	
+	if (currentInterval > dataLength) 
+		clearInterval(renderer);
+};
+
+updateChart(dataLength);
+var renderer = setInterval(function(){updateChart()}, updateInterval);
+
+}
+
 </script>
 
+
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 
 
 

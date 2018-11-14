@@ -151,7 +151,7 @@ def get_position(position_id):
     return rtn_val
 
 def get_positions(account_id, from_date=None, to_date=None, status=None):
-    rtn_val = {}
+    rtn_val = {'message':None}
     modified_query = raw_queries.get_positions
     data = [account_id]
 
@@ -190,7 +190,6 @@ def get_positions(account_id, from_date=None, to_date=None, status=None):
             rtn_val['positions'].append(curr_pos)
     else:
         rtn_val['status'] = False
-        rtn_val['message'] = result['message']
 
     return rtn_val
 
