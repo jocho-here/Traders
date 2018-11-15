@@ -3,7 +3,7 @@
 <style>
 .slider {
     -webkit-appearance: none;
-    width: 50%;
+    width: 30%;
     height: 10px;
     border-radius: 5px;   
     background: #d3d3d3;
@@ -21,7 +21,27 @@
     cursor: pointer;
 }
 
+.sellWindow {
+	display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 30%; /* Full width */
+    height: 30%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
 
+.sellContent {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
 
 </style>
 
@@ -30,6 +50,16 @@
   <title>Account</title>
       <link rel="stylesheet" href="">
 </head>
+
+<div id="sell-modal" class="sellWindow">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p>Some text in the Modal..</p>
+  </div>
+
+</div>
 
 <body>
 <a class = "text"><pre> <u>From</u>          <u>To</u><br/></pre></a>
@@ -54,7 +84,10 @@
 <a> <b> Rate Table </b> </a> (Virtual Time : <a id="virtual-time">None</a>)  
 <div>
   <input type="range" min="1" max="100" value="49" class="slider" id="timer">
+  <input type="number" id="volume"/>
+  <button type="button" onclick="directBuy()"> Buy </button>
 </div>
+
 
 <br/><br/>
 <table  id='rate_table'>
@@ -64,25 +97,20 @@
     <th>Rate</th>
     <th>Volumn</th>
     <th>Buy</th>
-    
+</table> 
+
 <div id="chartContainer" style="height: 36%; width: 64%;"></div>    
     
 
-</table> 
+
 </br></br></br>
 
-<a> <b> Position Table </b> </a> 
+<div style="position: absolute; top:20%; right:20%;">
+<b> Position Table </b> 
 <br/><br/>
 <table  id='position_table'>
-  <tr>
-    <th>From</th>
-    <th>To</th> 
-    <th>Open Time</th>
-    <th>Volumn</th>
-    <th>Close</th>
-  </tr>
 </table> 
-
+</div>
 
 </body>
 <script>
@@ -122,7 +150,7 @@ function getExchangeRate() {
            //console.log();
             //fillExchangeTable(response);
             data = response['exchange_rates'];
-              renderChart(response['exchange_rates']);
+              renderChart();
            } 
         }
     };
@@ -137,7 +165,7 @@ function fillExchangeTable(rows) {
     from = rows['currency_from'], to = rows['currency_to'];
     
     for (var i=0; i<exchangeRates.length; i++) {
-        var row = table.insertRow(i+1);
+        var row = table.insertRow(i);
         var cell0 = row.insertCell(0);
         var cell1 = row.insertCell(1);
         var cell2 = row.insertCell(2);
@@ -153,40 +181,32 @@ function fillExchangeTable(rows) {
     }
 }
 
-function buy(i) {
-    var volumn = Number(document.getElementById('volume_'+i).value);
-    if (! Number.isInteger(volumn)) {
-        alert('volume number not valid');
-        return;
-    }
-    volumn = parseInt(volumn);
-    if (volumn <= 0) {
-        alert('invalid volumn');
-        return;
-    }
-    var url = origin + '/users/' + uid + '/accounts/' + accid + '/positions';
-    var params = {
-      "currency_from": from,
-      "currency_to": to,
-      "time": exchangeRates[i]['time'],
-      "position_type": "long",
-      "volume": volumn
-    };
-    
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-           var response = JSON.parse( xhttp.responseText );
-           if (!response['status']) {
-                console.log(response('message'));
-           } else {
-                //Why update again? Position could be partially filled.
-                update_position_table();
-           }
-        }
-    };
-    xhttp.open('POST', url, true);
-    xhttp.send(JSON.stringify(params));
+function directBuy() {
+	var volume = Number(document.getElementById('volume').value);
+	if ( volume && Number.isInteger(volume) ) {
+		var url = origin + '/users/' + uid + '/accounts/' + accid + '/positions';
+		var params = {
+		  "currency_from": from,
+		  "currency_to": to,
+		  "time": data[currentInterval]['time'],
+		  "position_type": "long",
+		  "volume": volume
+		};
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+		    if (this.readyState == 4 && this.status == 200) {
+		       var response = JSON.parse( xhttp.responseText );
+		       if (!response['status']) {
+		            console.log(response('message'));
+		       } else {
+		            //Why update again? Position could be partially filled.
+		            update_position_table();
+		       }
+		    }
+		};
+		xhttp.open('POST', url, true);
+		xhttp.send(JSON.stringify(params));
+	}
 }
 
 function update_position_table() {
@@ -200,41 +220,32 @@ function update_position_table() {
            if ( response['status'] ) {
                 positions = response['positions'];
                 for (var i=0; i<positions.length; i++) {
-                    var row = table.insertRow(i+1);
+                    var row = table.insertRow(i);
                     var cell0 = row.insertCell(0);
                     var cell1 = row.insertCell(1);
                     var cell2 = row.insertCell(2);
-                    var cell3 = row.insertCell(3);
-                    var cell4 = row.insertCell(4);
-                    var cell5 = row.insertCell(5);
-                    cell0.innerHTML = positions[i]['currency_from'];
-                    cell1.innerHTML = positions[i]['currency_to'];
-                    cell2.innerHTML = positions[i]['open_rate_time'];
-                    cell3.innerHTML = positions[i]['volume'];
-                    cell4.innerHTML = '<input type=text id=close_' + i + ' />';
-                    cell5.innerHTML = '<button type="button" onclick="sell('+i+')"> Close </button>';
+                    cell0.innerHTML = positions[i]['currency_from'] + '_' + positions[i]['currency_to'];
+                    cell1.innerHTML = positions[i]['volume'];
+                    cell2.innerHTML = '<button type="button" onclick="sell('+i+')"> Close </button>';
                 }
            } 
         }
     };
     xhttp.open('GET', url, true);
     xhttp.send();    
-    
 }
 
-function sell(i) {
-    //TODO: finish sell, unsure about current decision on how to sell
-    console.log('try sell');
+function sell(index) {
+    //TODO: 
+    console.log(positions[index]);
 }
 
 
 // helper function reset table, leaves header alone
 function reset_table(table) {
-    if (! (table.rows.length == 1)) {
-        for (var i=0; i<table.rows.length+1; i++) {
-            table.deleteRow(1);
+        for (var i=0; i<table.rows.length; i++) {
+            table.deleteRow(0);
         }
-    }
 }
 
 
@@ -307,6 +318,7 @@ var updateChart = function () {
 		clearInterval(renderer);
 	}
 	document.getElementById("virtual-time").innerHTML=data[currentInterval]['time'];
+	document.getElementById("timer").value = Math.floor(currentInterval / duration * 100);
 };
 
 //Speed up time flow
@@ -346,7 +358,6 @@ slider.onmouseup = function() {
 slider.onmousedown = function() {
     clearInterval(renderer);
 }
-
 
 </script>
 
