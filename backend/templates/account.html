@@ -30,6 +30,7 @@
 <fieldset class = "field">
 
 <script>
+
 var ID = localStorage.getItem("ID")
 console.log(localStorage);
 if(ID == null){
@@ -39,26 +40,49 @@ function changeAccount(cID){
 	localStorage.setItem("ID", cID);	
 	window.location.reload();
 }
-
 var xmlHttp = new XMLHttpRequest();
 var url  = "http://localhost:8080/signin"
 var temp = {"email":"mcho1@illinois.edu","password":"jo1"}
 xmlHttp.open("POST", url, false); // false for synchronous request
 xmlHttp.setRequestHeader("Content-Type", "Accept: application/json;charset=UTF-8");
 xmlHttp.overrideMimeType("application/json");
-document.write("<a class = 'black'> <b> Accounts </b> </a> <br/><br/> <table id='account_table'>")
-document.write("  <tr> <th>Account ID </th> <th> View </th> </tr>")
+document.write("<a class = 'black'> <b> Accounts</b> </a> <br/><br/> <table id='account_table'>")
+document.write("  <tr> <th>Account ID </th> <th> View </th> <th> Delete </th> </tr>")
 var userID = 0;
+var cpy;
+function deleteAccount(userID, aid){
+	var u = "http://localhost:8080/" + userID + "/" + aid;
+	console.log(u)
+	var request = new XMLHttpRequest();
+	request.open("DELETE", u, false);
+	request.send(null);
+	window.location.reload();
+	return request.responseText;
+}
+
+function createAccount(acname, userID){
+	var req = new XMLHttpRequest();
+	var url = "http://localhost:8080/new_account?uid=" + userID;
+    req.open("POST", url, false); // false for synchronous request
+    req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    req.send(JSON.stringify({"account_name": acname}));
+    var result = req.responseText;
+    window.location.reload()
+    return result;
+}
+
 xmlHttp.onreadystatechange = function(e) {//Call a function when the state changes.
     if(xmlHttp.readyState == 4 && xmlHttp.status == 200) {
     	var res  = xmlHttp.responseText;
     	var resp = JSON.parse(res);
         var IDS  = resp.account_ids;
+        cpy = IDS.slice();
         userID   = resp.user_id;
         for(var i = 0; i < IDS.length; i++){
-        	document.write("<tr> <td> <center> " + IDS[i] + " </center> </td> <td> <button type='button' onclick='changeAccount(" + IDS[i] +  ")'> View </button></td></tr>")
+        	document.write("<tr> <td> <center> " + IDS[i] + " </center> </td> <td> <button type='button' onclick='changeAccount(" + IDS[i] +  ")'> View </button></td>" +
+        	"<td> <button type='button' onclick='deleteAccount(" + userID + ", "+ IDS[i] +  ")'> Remove </button></td> </tr>")
         }
-        document.write("</table>")
+        document.write("</table><br/><button type='button' onclick='createAccount(" + IDS.length+ ", " + userID + ")'> Create Account </button>")
     }
 }
 xmlHttp.send(JSON.stringify(temp));
