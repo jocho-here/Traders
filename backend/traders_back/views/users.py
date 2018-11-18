@@ -33,6 +33,11 @@ def user_page():
     uid = request.args.get('uid')
     acc = get_account_info_help(uid)
     return render_template('user_page.html', uid=uid, account_info=acc)
+    
+@users.route('/user_page/<int:uid>')
+def user_page_without_chart(uid):
+    acc = get_account_info_help(uid)
+    return render_template('Account/index.html', uid=uid, account_info=acc)
 
 @users.route('/users', methods=['POST', 'DELETE', 'GET'])
 def user_manipulation():
