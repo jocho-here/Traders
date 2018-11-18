@@ -16,10 +16,10 @@ def user_login():
         data = utils.getter_db(sql, [user, pswd])['result']
         if len(data) == 0:
             #invalid password, later on add indications
-            return render_template("login_page.html")
-        return redirect(url_for('users.user_page/%s'%data[0]['id']))		
+            return render_template("login.html")
+        return redirect('/user_page/%s'%data[0]['id'])		
 
-    return render_template("login_page.html"
+    return render_template("login.html")
 
 def get_account_info_help(uid):
     sql = '''SELECT 
