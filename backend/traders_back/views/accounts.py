@@ -35,8 +35,8 @@ def create_new_account():
     uid = int(request.args.get('uid'))
     name = utils.get_req_data()['account_name']
     query = '''Insert into Accounts (
-        account_name, open_date, user_id) values (
-        %s, %s, %s) ''' 
+        account_name, open_date, user_id, available_equity) values (
+        %s, %s, %s, "100000") ''' 
     ret = utils.setter_db(query, (name, utils.get_date_time(), uid))
     if not ret['status']:
         return jsonify(ret)
