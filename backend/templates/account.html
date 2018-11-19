@@ -112,10 +112,12 @@ xmlHttp.send(JSON.stringify(temp));
     	var end = document.getElementById("end").value;
         var currency_from = document.getElementById("currency_from").value;
         var currency_to = document.getElementById("currency_to").value;
+        var gran = document.getElementById("gran").value;
     	localStorage.setItem("start", start);
     	localStorage.setItem("end", end);
     	localStorage.setItem("curr_from", currency_from);
     	localStorage.setItem("curr_to", currency_to);
+    	localStorage.setItem("gran", gran);
     	window.location.reload()
     }
     </script>
@@ -126,7 +128,9 @@ xmlHttp.send(JSON.stringify(temp));
 Start Date_Time: <br/>
 <input id = "start" type="text" name="start" value="2000-10-30_17:26:34"> <br/>
 End Date_Time: <br/>
-<input id = "end" type="text" name="end" value="2020-11-30_17:26:34"><br>
+<input id = "end" type="text" name="end" value="2020-11-30_17:26:34"> <br>
+Granularity: <br/>
+<input id = "gran" type="text" name="gran" value="20""> <br>
  </a>
 <br/>
 <button onclick="save()" class="btn dropbtn">Find</button>
@@ -137,7 +141,7 @@ End Date_Time: <br/>
  var e = localStorage.getItem("end");
  var curr_f = localStorage.getItem("curr_from");
  var curr_t = localStorage.getItem("curr_to");
-
+ var g = localStorage.getItem("gran");
  function httpGet(theUrl)
 {
     var xmlHttp = new XMLHttpRequest();
@@ -182,18 +186,32 @@ function sell(row)
     window.location.reload()
     return result;
 }
+var curr = c.exchange_rates[0].time;
+var prev = c.exchange_rates[0].time;
 document.write("<br/>")
 document.write("<a class = 'black'> <b> Rate Table </b> </a> <table id='rate_table'>")
 document.write("  <tr> <th>From</th> <th>To</th> <th>Time</th> <th>Rate</th> <th>Volume</th> <th>Buy</th></tr>")
+prev = prev.replace(" ", "T")
+var skip = 60 * parseInt(g);
 for(var i = 0; i < c.exchange_rates.length; i++){
-	document.write("<tr>")
-	document.write("<td>" + c.currency_from + "</td>");
-	document.write("<td>" + c.currency_to + "</td>");
-    document.write("<td><p id='time'>" + c.exchange_rates[i].time + "</p></td>");
-	document.write("<td>" + c.exchange_rates[i].bid + "</td>");
-	document.write("<td> <input type='text' id='volume_" + (i+1) + "'>");
-    document.write("<td> <button type='button' onclick='purchase(" + (i+1) + ")'>Buy</button></td>");
-	document.write("</tr>")
+	curr = c.exchange_rates[i].time;
+	curr = curr.replace(" ", "T");
+	var d1 = new Date(curr)
+	var d2 = new Date(prev)
+	d1 = new Date(d1.toUTCString())
+	d2 = new Date(d2.toUTCString())
+	var diff = (d1.getTime() - d2.getTime())/1000
+	if((prev == curr) || (diff >= skip)){
+		prev = curr;
+		document.write("<tr>")
+		document.write("<td>" + c.currency_from + "</td>");
+		document.write("<td>" + c.currency_to + "</td>");
+    	document.write("<td> <p id='time'>" + c.exchange_rates[i].time + "</p></td>");
+		document.write("<td>" + c.exchange_rates[i].bid + "</td>");
+		document.write("<td> <input type='text' id='volume_" + (i+1) + "'>");
+    	document.write("<td> <button type='button' onclick='purchase(" + (i+1) + ")'>Buy</button></td>");
+		document.write("</tr>")
+	}
 }
 var f = c;
 document.write("</table> <br/>")
