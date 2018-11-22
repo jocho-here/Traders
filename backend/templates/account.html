@@ -158,14 +158,12 @@ function purchase(row)
     var curr_to = document.getElementById('rate_table').rows[row].cells[1].innerText;
     var time = document.getElementById('rate_table').rows[row].cells[2].innerText;
     var volume = document.getElementById('volume_'+row).value;
-
     var xmlHttp = new XMLHttpRequest();
     var url = "http://localhost:8080/users/" +userID+ "/accounts/" + ID + "/positions";
     xmlHttp.open("POST", url, false); // false for synchronous request
     xmlHttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xmlHttp.send(JSON.stringify({"volume":volume, "currency_from":curr_from,"currency_to":curr_to,"time":time,"position_type":"long"}));
     var result = xmlHttp.responseText;
-
     window.location.reload()
     return result;
 }
@@ -186,6 +184,11 @@ function sell(row)
     window.location.reload()
     return result;
 }
+
+function reload(){
+	window.location.reload();
+}
+
 var curr = c.exchange_rates[0].time;
 var prev = c.exchange_rates[0].time;
 document.write("<br/>")

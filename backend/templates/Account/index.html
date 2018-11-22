@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Home - Brand</title>
+    <title>Traders Capital</title>
     <link rel="stylesheet" href="../static/assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
     <link rel="stylesheet" href="../static/assets/fonts/ionicons.min.css">
@@ -75,13 +75,169 @@
                     class="btn btn-primary" type="button" style="background-color: rgb(112,181,211);">History</button><button class="btn btn-primary" type="button" style="background-color: rgb(255,14,144);">Log Out</button></div>
         </div>
     </nav>
+    
+
     <main class="page lanidng-page">
+    <script>
+    const accounts = {{ account_info | tojson | safe }};
+	const uid = {{ uid }};
+	var userID = uid;
+	var ID = 1;
+	var temp = {"email":"mcho1@illinois.edu","password":"jo1"}
+	var save = function(){
+    	var start = document.getElementById("start").value;
+    	var end = document.getElementById("end").value;
+        var currency_from = document.getElementById("currency_from").value;
+        var currency_to = document.getElementById("currency_to").value;
+        var gran = document.getElementById("gran").value;
+    	localStorage.setItem("start", start);
+    	localStorage.setItem("end", end);
+    	localStorage.setItem("curr_from", currency_from);
+    	localStorage.setItem("curr_to", currency_to);
+    	localStorage.setItem("gran", gran);
+    	window.location.reload()
+    }
+var ID = localStorage.getItem("ID")
+console.log(localStorage);
+if(ID == null){
+	ID = 1;
+}
+function changeAccount(cID){
+	localStorage.setItem("ID", cID);	
+	window.location.reload();
+}
+var xmlHttp = new XMLHttpRequest();
+var url  = "http://localhost:8080/signin"
+xmlHttp.open("POST", url, false); // false for synchronous request
+xmlHttp.setRequestHeader("Content-Type", "Accept: application/json;charset=UTF-8");
+xmlHttp.overrideMimeType("application/json");
+document.write("<b> Accounts</b> </a> <br/><br/> <table id='account_table'>")
+document.write("  <tr> <th>Account ID </th> <th> View </th> <th> Delete </th> </tr>")
+var cpy;
+function deleteAccount(userID, aid){
+	var u = "http://localhost:8080/" + userID + "/" + aid;
+	console.log(u)
+	var request = new XMLHttpRequest();
+	request.open("DELETE", u, false);
+	request.send(null);
+	window.location.reload();
+	return request.responseText;
+}
+
+function createAccount(acname, userID){
+	var req = new XMLHttpRequest();
+	var url = "http://localhost:8080/new_account?uid=" + userID;
+    req.open("POST", url, false); // false for synchronous request
+    req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    req.send(JSON.stringify({"account_name": acname}));
+    var result = req.responseText;
+    window.location.reload()
+    return result;
+}
+
+xmlHttp.onreadystatechange = function(e) {//Call a function when the state changes.
+    if(xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+    	var res  = xmlHttp.responseText;
+    	var resp = JSON.parse(res);
+        var IDS  = resp.account_ids;
+        cpy = IDS.slice();
+        userID   = resp.user_id;
+        for(var i = 0; i < IDS.length; i++){
+        	document.write("<tr> <td> <center> " + IDS[i] + " </center> </td> <td> <button type='button' onclick='changeAccount(" + IDS[i] +  ")'> View </button></td>" +
+        	"<td> <button type='button' onclick='deleteAccount(" + userID + ", "+ IDS[i] +  ")'> Remove </button></td> </tr>")
+        }
+        document.write("</table><br/><button type='button' onclick='createAccount(" + IDS.length+ ", " + userID + ")'> Create Account </button>")
+    }
+}
+xmlHttp.send(JSON.stringify(temp));
+    </script>
+    <br/><br/>
+    <a class = "text"><pre>  <u>From</u>       <u>To</u><br/></pre></a>
+    &nbsp;&nbsp;
+    <select id="currency_from">
+      <option value="usd">usd</option>
+      <option value="gbp">gbp</option>
+      <option value="chn">chn</option>
+      <option value="eur">eur</option>
+      <option value="eur">ger</option>
+    </select>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <select id="currency_to">
+      <option value="gbp">gbp</option>
+      <option value="usd">usd</option>
+      <option value="chn">chn</option>
+      <option value="eur">eur</option>
+      <option value="ger">ger</option>
+    </select>
+    <br/>
+    <a class = "black">
+	&nbsp;&nbsp;Start Date_Time: <br/>
+	&nbsp;&nbsp;<input id = "start" type="text" name="start" value="2000-10-30_17:26:34"> <br/>
+	&nbsp;&nbsp;End Date_Time: <br/>
+	&nbsp;&nbsp;<input id = "end" type="text" name="end" value="2020-11-30_17:26:34"> <br>
+	&nbsp;&nbsp;Granularity: <br/>
+	&nbsp;&nbsp;<input id = "gran" type="text" name="gran" value="20""> <br>
+ 	</a>
+ 	<br/>
+ 	&nbsp;&nbsp;
+	<button onclick="save()" class="btn dropbtn" style="background-color: rgb(112,181,211);">Find</button>
+	<br/>
+<script>
+ var s = localStorage.getItem("start");
+ var e = localStorage.getItem("end");
+ var curr_f = localStorage.getItem("curr_from");
+ var curr_t = localStorage.getItem("curr_to");
+ var g = localStorage.getItem("gran");
+ function httpGet(theUrl)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", theUrl, false); // false for synchronous request
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
+}
+var ret = httpGet("http://localhost:8080/exchangerates/currency_from/" + curr_f + "/currency_to/" + curr_t + "/from_time/"+ s + "/to_time/" + e);
+var c = JSON.parse(ret);
+
+function purchase(row)
+{
+    var curr_from = document.getElementById('rate_table').rows[row].cells[0].innerText;
+    var curr_to = document.getElementById('rate_table').rows[row].cells[1].innerText;
+    var time = document.getElementById('rate_table').rows[row].cells[2].innerText;
+    var volume = document.getElementById('volume_'+row).value;
+    var xmlHttp = new XMLHttpRequest();
+    var url = "http://localhost:8080/users/" +userID+ "/accounts/" + ID + "/positions";
+    xmlHttp.open("POST", url, false); // false for synchronous request
+    xmlHttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xmlHttp.send(JSON.stringify({"volume":volume, "currency_from":curr_from,"currency_to":curr_to,"time":time,"position_type":"long"}));
+    var result = xmlHttp.responseText;
+
+    window.location.reload()
+    return result;
+}
+
+function sell(row)
+{
+    var close_time = document.getElementById('close_time_' + row).value;
+    var position_id = document.getElementById('position_id_' + row).value;
+    var open_rate_id = document.getElementById('open_rate_id_' + row).value;
+    
+    var xmlHttp = new XMLHttpRequest();
+    var url = "http://localhost:8080/users/"+userID+"/accounts/" + ID+ "/positions/" + position_id;
+
+    xmlHttp.open("PUT", url, false); // false for synchronous request
+    xmlHttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xmlHttp.send(JSON.stringify({"close_rate_time":close_time, "open_rate_id":open_rate_id}));
+    var result = xmlHttp.responseText;
+    window.location.reload()
+    return result;
+}
+var curr = c.exchange_rates[0].time;
+var prev = c.exchange_rates[0].time;
+ </script>
         <section class="portfolio-block block-intro">
-            <div class="container">
-                <div class="avatar" style="background-image:url(&quot;assets/img/avatars/avatar.jpg&quot;);"></div>
-            </div><small class="form-text text-muted" style="background-color: #b6ffaf;"><strong>Rate Table</strong></small>
+        <small class="form-text text-muted" style="background-color: #b6ffaf;"><strong>Rate Table</strong></small>
             <div class="table-responsive" style="background-color: #fed393;">
-                <table class="table">
+                <table class="table" id = 'rate_table'>
                     <thead>
                         <tr>
                             <th style="background-color: #c0bef7;">From</th>
@@ -93,22 +249,34 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Cell 1</td>
-                            <td>Cell 2</td>
-                            <td>Cell 2</td>
-                            <td>Cell 2</td>
-                            <td>Cell 5</td>
-                            <td>Cell 5</td>
-                        </tr>
-                        <tr>
-                            <td>Cell 3</td>
-                            <td>Cell 2</td>
-                            <td>Cell 2</td>
-                            <td>Cell 4</td>
-                            <td>Cell 5</td>
-                            <td>Cell 5</td>
-                        </tr>
+                    <script>
+prev = prev.replace(" ", "T")
+var skip = 60 * parseInt(g);
+for(var i = 0; i < c.exchange_rates.length; i++){
+	curr = c.exchange_rates[i].time;
+	curr = curr.replace(" ", "T");
+	var d1 = new Date(curr)
+	var d2 = new Date(prev)
+	d1 = new Date(d1.toUTCString())
+	d2 = new Date(d2.toUTCString())
+	var diff = (d1.getTime() - d2.getTime())/1000
+	if((prev == curr) || (diff >= skip)){
+		prev = curr;
+		document.write("<tr>")
+		document.write("<td>" + c.currency_from + "</td>");
+		document.write("<td>" + c.currency_to + "</td>");
+    	document.write("<td> <p id='time'>" + c.exchange_rates[i].time + "</p></td>");
+		document.write("<td>" + c.exchange_rates[i].bid + "</td>");
+		document.write("<td> <input type='text' id='volume_" + (i+1) + "'>");
+    	document.write("<td> <button type='button' onclick='purchase(" + (i+1) + ")'>Buy</button></td>");
+		document.write("</tr>")
+	}
+}
+var f = c;
+
+ret = httpGet("http://localhost:8080/users/"+userID+"/accounts/"+ID+"/positions");
+c = JSON.parse(ret);
+</script>
                     </tbody>
                 </table>
             </div>
@@ -129,33 +297,27 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Cell 1</td>
-                            <td>Cell 2</td>
-                            <td>Cell 2</td>
-                            <td>Cell 2</td>
-                            <td>Cell 5</td>
-                            <td>Cell 5</td>
-                        </tr>
-                        <tr>
-                            <td>Cell 3</td>
-                            <td>Cell 2</td>
-                            <td>Cell 2</td>
-                            <td>Cell 4</td>
-                            <td>Cell 5</td>
-                            <td>Cell 5</td>
-                        </tr>
+<script>
+for(var i = 0; i < c.positions.length; i++){
+    if (c.positions[i].close_rate_id == null) {
+        document.write("<tr>");
+        document.write("<input type='hidden' id='position_id_" + (i+1) +"'" + (i+1) + "' value='" + c.positions[i].id+ "'>");
+        document.write("<input type='hidden' id='open_rate_id_" + (i+1) +"'" + (i+1) + "' value='" + c.positions[i].open_rate_id+ "'>");
+        document.write("<td>" + c.positions[i].currency_from + "</td>");
+        document.write("<td>" + c.positions[i].currency_to + "</td>");
+        document.write("<td>" + c.positions[i].open_rate_time + "</td>");
+        document.write("<td>" + c.positions[i].volume + "</td>");
+        document.write("<td> <input type='text' id='close_time_" + (i+1) + "'> </td>");
+        document.write("<td> <button type='button' onclick='sell(" + (i+1) + ")'>Sell</button></td>");
+        document.write("</tr>")
+    }
+}
+</script>
                     </tbody>
                 </table>
             </div>
         </section>
         <section class="portfolio-block photography"></section>
-        <section class="portfolio-block call-to-action border-bottom">
-            <div class="container">
-                <div class="d-flex justify-content-center align-items-center content">
-                    <h3>Like what you see?</h3><button class="btn btn-outline-primary btn-lg" type="button">Hire me</button></div>
-            </div>
-        </section>
     </main>
     <script src="../static/assets/js/jquery.min.js"></script>
     <script src="../static/assets/bootstrap/js/bootstrap.min.js"></script>
