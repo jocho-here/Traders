@@ -143,11 +143,30 @@ UPDATE Positions SET close_rate_id = %s, position_status = %s
 WHERE id = %s
 """
 
+get_open_rate_info_with_id =\
+"""
+SELECT currency_from, currency_to, time
+FROM ExchangeRates e
+WHERE e.id = (
+        SELECT open_rate_id
+        FROM Positions p
+        WHERE p.id = %s
+)
+"""
 # ExchangeRate realted queries
 get_exchange_rate =\
 """
 SELECT *
 FROM ExchangeRates
+"""
+
+get_nearest_exchange_rate =\
+"""
+SELECT *
+FROM ExchangeRates
+WHERE currency_from = %s AND currency_to = %s AND time <= %s
+ORDER BY time DESC
+LIMIT 1
 """
 #
 #CREATE TABLE ExchangeRates (
@@ -166,12 +185,21 @@ INSERT INTO ExchangeRates (currency_from, currency_to, bid, ask, time)
 """
 
 
+
 # Account related queries
 create_account =\
 """
 INSERT INTO Accounts(user_id, account_name, available_equity, open_date)
     VALUES(%s, %s, %s, %s)
 """
+
+update_equity =\
+"""
+UPDATE Accounts
+SET available_equity = available_equity + %s
+WHERE id=%s
+"""
+
 
 delete_account =\
 """
@@ -186,11 +214,11 @@ FROM Accounts
 WHERE user_id = %s AND account_name = %s
 """
 
-get_account_info_from_uid_accid =\
+get_account_info_from_accid =\
 """
 SELECT *
 FROM Accounts
-WHERE user_id = %s AND id = %s
+WHERE id = %s
 """
 
 get_user_accounts =\
