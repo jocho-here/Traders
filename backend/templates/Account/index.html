@@ -90,11 +90,13 @@
         var currency_from = document.getElementById("currency_from").value;
         var currency_to = document.getElementById("currency_to").value;
         var gran = document.getElementById("gran").value;
+        var granType = document.getElementById("gran_type").value;
     	localStorage.setItem("start", start);
     	localStorage.setItem("end", end);
     	localStorage.setItem("curr_from", currency_from);
     	localStorage.setItem("curr_to", currency_to);
     	localStorage.setItem("gran", gran);
+    	localStorage.setItem("granType", granType);
     	window.location.reload()
     }
 var ID = localStorage.getItem("ID")
@@ -112,7 +114,7 @@ xmlHttp.open("POST", url, false); // false for synchronous request
 xmlHttp.setRequestHeader("Content-Type", "Accept: application/json;charset=UTF-8");
 xmlHttp.overrideMimeType("application/json");
 document.write("<b> Accounts</b> </a> <br/><br/> <table id='account_table'>")
-document.write("  <tr> <th>Account ID </th> <th> View </th> <th> Delete </th> </tr>")
+document.write("  <tr> <th>Account Name </th> <th> View </th> <th> Delete </th> </tr>")
 var cpy;
 function deleteAccount(userID, aid){
 	var u = "http://localhost:8080/" + userID + "/" + aid;
@@ -126,10 +128,11 @@ function deleteAccount(userID, aid){
 
 function createAccount(acname, userID){
 	var req = new XMLHttpRequest();
+	var nme = document.getElementById("nme").value;
 	var url = "http://localhost:8080/new_account?uid=" + userID;
     req.open("POST", url, false); // false for synchronous request
     req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    req.send(JSON.stringify({"account_name": acname}));
+    req.send(JSON.stringify({"account_name": nme}));
     var result = req.responseText;
     window.location.reload()
     return result;
@@ -142,11 +145,17 @@ xmlHttp.onreadystatechange = function(e) {//Call a function when the state chang
         var IDS  = resp.account_ids;
         cpy = IDS.slice();
         userID   = resp.user_id;
+        var Req = new XMLHttpRequest();
         for(var i = 0; i < IDS.length; i++){
-        	document.write("<tr> <td> <center> " + IDS[i] + " </center> </td> <td> <button type='button' onclick='changeAccount(" + IDS[i] +  ")'> View </button></td>" +
-        	"<td> <button type='button' onclick='deleteAccount(" + userID + ", "+ IDS[i] +  ")'> Remove </button></td> </tr>")
+    		Req.open("GET", "http://localhost:8080/" + userID + "/" + IDS[i], false);
+    		Req.send(null);
+    		var ret = JSON.parse(Req.responseText);
+    		if(ret['account_name'] != undefined){
+        		document.write("<tr> <td> <center> " + ret['account_name'] + " </center> </td> <td> <button type='button' onclick='changeAccount(" + IDS[i] +  ")'> View </button></td>" +
+        		"<td> <button type='button' onclick='deleteAccount(" + userID + ", "+ IDS[i] +  ")'> Remove </button></td> </tr>")
+        	}
         }
-        document.write("</table><br/><button type='button' onclick='createAccount(" + IDS.length+ ", " + userID + ")'> Create Account </button>")
+        document.write("</table><br/>&nbsp;&nbsp;&nbsp;&nbsp;<input id = 'nme' type='text'> &nbsp;&nbsp; <button type='button' onclick='createAccount(" + IDS.length+ ", " + userID + ")'> Create Account </button>")
     }
 }
 xmlHttp.send(JSON.stringify(temp));
@@ -171,23 +180,32 @@ xmlHttp.send(JSON.stringify(temp));
     </select>
     <br/>
     <a class = "black">
-	&nbsp;&nbsp;Start Date_Time: <br/>
-	&nbsp;&nbsp;<input id = "start" type="text" name="start" value="2000-10-30_17:26:34"> <br/>
-	&nbsp;&nbsp;End Date_Time: <br/>
-	&nbsp;&nbsp;<input id = "end" type="text" name="end" value="2020-11-30_17:26:34"> <br>
-	&nbsp;&nbsp;Granularity: <br/>
-	&nbsp;&nbsp;<input id = "gran" type="text" name="gran" value="20""> <br>
+	&nbsp;&nbsp;&nbsp;Start Date_Time: <br/>
+	&nbsp;&nbsp;&nbsp;<input id = "start" type="text" name="start" value="2000-10-30_17:26:34"> <br/>
+	&nbsp;&nbsp;&nbsp;End Date_Time: <br/>
+	&nbsp;&nbsp;&nbsp;<input id = "end" type="text" name="end" value="2020-11-30_17:26:34"> <br/>
+	&nbsp;&nbsp;&nbsp;Granularity: <br/>
+	&nbsp;&nbsp;&nbsp;<input id = "gran" type="text" name="gran" value="20""> 
+	<select id="gran_type">
+	  <option value="seconds">seconds</option>
+      <option value="minutes">minutes</option>
+      <option value="hours">hours</option>
+      <option value="days">days</option>
+    </select>
+	<br/>
  	</a>
  	<br/>
  	&nbsp;&nbsp;
 	<button onclick="save()" class="btn dropbtn" style="background-color: rgb(112,181,211);">Find</button>
 	<br/>
+
 <script>
  var s = localStorage.getItem("start");
  var e = localStorage.getItem("end");
  var curr_f = localStorage.getItem("curr_from");
  var curr_t = localStorage.getItem("curr_to");
  var g = localStorage.getItem("gran");
+ var gTa = localStorage.getItem("granType")
  function httpGet(theUrl)
 {
     var xmlHttp = new XMLHttpRequest();
@@ -234,8 +252,11 @@ function sell(row)
 var curr = c.exchange_rates[0].time;
 var prev = c.exchange_rates[0].time;
  </script>
-        <section class="portfolio-block block-intro">
-        <small class="form-text text-muted" style="background-color: #b6ffaf;"><strong>Rate Table</strong></small>
+ 		<br/>
+        <b> &nbsp;&nbsp;&nbsp;&nbsp;Account Balance: </b>
+        <br/>
+        <section class="block-intro">
+        <small class="form-text text-muted" style="background-color: #b6ffaf;"><strong><center>Rate Table</center></strong></small>
             <div class="table-responsive" style="background-color: #fed393;">
                 <table class="table" id = 'rate_table'>
                     <thead>
@@ -251,7 +272,19 @@ var prev = c.exchange_rates[0].time;
                     <tbody>
                     <script>
 prev = prev.replace(" ", "T")
-var skip = 60 * parseInt(g);
+var it = 1;
+if(gTa != null){
+	if(gTa == "minutes"){
+		it = 60
+	}
+	if(gTa == "days"){
+		it = 24 * 60 * 60
+	}
+	if(gTa == "hours"){
+		it = 60 * 60;
+	}
+}
+var skip = it * parseInt(g);
 for(var i = 0; i < c.exchange_rates.length; i++){
 	curr = c.exchange_rates[i].time;
 	curr = curr.replace(" ", "T");
@@ -283,7 +316,7 @@ c = JSON.parse(ret);
             <br/>
             <br/>
             <br/>
-            <small class="form-text text-muted" style="background-color: #ffafe9;">Position Table</small>
+            <small class="form-text text-muted" style="background-color: #ffafe9;"><strong><center>Position Table</center></strong></small>
             <div class="table-responsive" style="background-color: #fed393;">
                 <table class="table">
                     <thead>
