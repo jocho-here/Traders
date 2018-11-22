@@ -87,11 +87,12 @@ exchange_rate_ids = []
 position_ids = {}
 
 # Initializing DB
-utils.reset_db()
+#utils.reset_db()
 
 # Create users
 for i in range(len(emails)):
     result = manage.sign_up(emails[i], usernames[i], usernames[i])
+    print(result)
     user_ids.append(result['user_id'])
 
 # Create accounts
@@ -105,12 +106,12 @@ for user_id in user_ids:
         position_ids[user_id][result['account_id']] = []
 
 # Create exchange rates
-for rate in exchange_rates:
-    result = manage.add_exchange_rate(rate['currency_from'], rate['currency_to'], rate['bid'], rate['ask'], rate['time'])
-    exchange_rate_ids.append(result['rate_id'])
-
-# Create positions
-for user_id in account_ids:
-    for account_id in account_ids[user_id]:
-        result = manage.create_position(account_id, 'gbp', 'usd', '2018-01-01 11:11:11', 'long', 111.1)
-        position_ids[user_id][account_id].append(result['position_id'])
+#for rate in exchange_rates:
+#    result = manage.add_exchange_rate(rate['currency_from'], rate['currency_to'], rate['bid'], rate['ask'], rate['time'])
+#    exchange_rate_ids.append(result['rate_id'])
+#
+## Create positions
+#for user_id in account_ids:
+#    for account_id in account_ids[user_id]:
+#        result = manage.create_position(account_id, 'gbp', 'usd', '2018-01-01 11:11:11', 'long', 111.1)
+#        position_ids[user_id][account_id].append(result['position_id'])
