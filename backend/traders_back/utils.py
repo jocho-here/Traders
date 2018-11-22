@@ -1,7 +1,7 @@
 from flask import request
 import re, json, time
 import pymysql.cursors
-
+from datetime import datetime
 import traders_back.raw_queries as raw_queries
 
 
@@ -11,16 +11,19 @@ import traders_back.raw_queries as raw_queries
 tables = ['Positions', 'Accounts', 'Users', 'ExchangeRates']
 
 ERR_ACCOUNT_ID = 'User with such account id does not exist'
+DT_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 # Return current time frame
 def get_date_time():
-    return time.strftime('%Y-%m-%d %H:%M:%S')
+    return time.strftime(DT_FORMAT)
 
-def datetime_type_exchange(dt):
-    if type(dt) is str:
-        return time.strftime('%Y-%m-%d %H:%M:%S')
-    else:
-        return str(dt)
+def datetime_to_str(dt):
+    if type(dt) is not str:
+        return dt.strftime('%Y-%m-%d %H:%M:%S')
+    
+def str_to_datetime(string):
+    if type(string) is str:
+        return datetime.strptime(string, '%Y-%m-%d %H:%M:%S')
 
 # Receive request data
 def get_req_data():
