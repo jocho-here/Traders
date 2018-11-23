@@ -359,5 +359,6 @@ def try_get_user_info(user, pswd):
 	return utils.getter_db(raw_queries.try_retrieve_user_info, (user, pswd))['result']
     
     
-def register_user(user, pswd):
-	utils.setter_db(raw_queries.register_user, (user, pswd))
+def register_user(user, pswd, email):
+	email = user+'@'+'test.com'
+	return utils.setter_db(raw_queries.register_user, (email, user, pswd))

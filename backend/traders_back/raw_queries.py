@@ -241,6 +241,6 @@ register_user =\
 INSERT INTO Users (
 	email, username, password
 ) VALUES (
-	"", %s, %s
+	%s, %s, %s
 )
 """
