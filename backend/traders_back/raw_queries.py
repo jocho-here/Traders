@@ -189,7 +189,7 @@ INSERT INTO ExchangeRates (currency_from, currency_to, bid, ask, time)
 # Account related queries
 create_account =\
 """
-INSERT INTO Accounts(user_id, account_name, available_equity, open_date)
+INSERT INTO Accounts(account_name, open_date, user_id, available_equity)
     VALUES(%s, %s, %s, %s)
 """
 
@@ -226,4 +226,12 @@ get_user_accounts =\
 SELECT *
 FROM Accounts
 WHERE user_id = %s
+"""
+
+try_retrieve_user_info =\
+"""
+SELECT U.id uid, A.id accid 
+FROM Users U 
+LEFT JOIN Accounts A ON U.id=A.user_id 
+WHERE U.username=%s AND U.password=%s
 """

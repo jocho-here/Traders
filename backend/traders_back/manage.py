@@ -223,12 +223,9 @@ def close_position(position_id, close_rate_time):
 # Check whether account_id is associated with the user_id
 #def check_account_id(user_id, account_id)
 
-def create_account(uid, acc_name):
+def create_account(uid, acc_name, equity):
     rtn_val = {}
-    result = setter_db(raw_queries.create_account, data = (uid,
-                                                           acc_name,
-                                                           100000,
-                                                           datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+    result = setter_db(raw_queries.create_account, data = (name, utils.get_date_time(), uid, equity))
     if result['status']:
         rtn_val['status'] = True
     else:
@@ -358,6 +355,7 @@ def get_user_info(uid):
     
     return rtn_val
 
-    
+def try_get_user_info(user, pswd):
+	return utils.getter_db(raw_queries.try_retrieve_user_info, (user, pswd))['result']
     
     

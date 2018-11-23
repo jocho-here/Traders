@@ -26,6 +26,10 @@ def user_account():
 	return render_template("user_account.html")
 '''
 
+@accounts.route('/create_account')
+def page_create_account():
+	return render_template('Create/index.html')
+
 @accounts.route('/account')
 def account_apis():
     return "Accounts"
@@ -34,10 +38,8 @@ def account_apis():
 def create_new_account():
     uid = int(request.args.get('uid'))
     name = utils.get_req_data()['account_name']
-    query = '''Insert into Accounts (
-        account_name, open_date, user_id, available_equity) values (
-        %s, %s, %s, "100000") ''' 
-    ret = utils.setter_db(query, (name, utils.get_date_time(), uid))
+    equity = utils.get_req_data()['equity']
+    ret = manage.create_account(uid, name, equity) 
     if not ret['status']:
         return jsonify(ret)
     query = 'SELECT email FROM Users WHERE id=%s'

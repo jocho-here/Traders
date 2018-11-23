@@ -11,22 +11,19 @@ def user_login():
         req = utils.get_req_data()
         user = req['userName']
         pswd = req['passWord']
-        sql = '''SELECT id FROM Users
-		    WHERE username=%s AND password=%s'''
-        data = utils.getter_db(sql, [user, pswd])['result']
+        data = manage.try_get_user_info(user, pswd)
         if len(data) == 0:
             #invalid password, later on add indications
             return render_template("login.html")
-        return redirect('/user_page/%s'%data[0]['id'])		
+        return redirect('/user_page/%s'%data[0]['uid'])		
 
     return render_template("login.html")
 
 def get_account_info_help(uid):
-    sql = '''SELECT 
-        A.id, A.account_name, A.open_date, A.close_date
-        FROM Accounts A
-        WHERE A.user_id=%s'''
-    return utils.getter_db(sql, (uid))['result']
+    res = manage.get_user_accounts(uid)
+    if res['status']:
+        return res['accounts']
+    return None
 
 @users.route('/user_page')
 def user_page():
@@ -82,10 +79,7 @@ def user_signin():
     req = utils.get_req_data()
     email = req['email']
     pswd = req['password']
-    query = '''SELECT U.id uid, A.id accid FROM Users U LEFT JOIN Accounts A ON
-            U.id=A.user_id WHERE U.email=%s AND U.password=%s
-            '''
-    ret = utils.getter_db(query, (email, pswd))
+    ret = manage.try_get_user_info(email, pswd)
     accounts = ret.pop('result')
     if len(accounts) == 0:
         ret['status'] = False
