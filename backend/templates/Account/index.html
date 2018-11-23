@@ -1,6 +1,24 @@
 <!DOCTYPE html>
 <html>
+<style>
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
 
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 12px 16px;
+    z-index: 1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+</style>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
@@ -70,7 +88,15 @@
         <div class="container"><a class="navbar-brand logo" href="#">Trader Capital</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse"
                 id="navbarNav">
-                <ul class="nav navbar-nav ml-auto"></ul><button class="btn btn-primary" type="button" style="background-color: rgb(77,255,14);">Create Account</button><button class="btn btn-primary" type="button" style="background-color: rgb(244,127,20);">Delete Account</button>
+                <ul class="nav navbar-nav ml-auto"></ul>
+                
+                <div class="dropdown">
+				  <button class="btn btn-primary" type="button">Accounts</button>
+				  <div id="dropdown-accounts" class="dropdown-content">
+				  </div>
+				</div>
+				
+                <button class="btn btn-primary" type="button" style="background-color: rgb(77,255,14);">Create Account</button><button class="btn btn-primary" type="button" style="background-color: rgb(244,127,20);">Delete Account</button>
                 <button
                     class="btn btn-primary" type="button" style="background-color: rgb(112,181,211);">History</button><button class="btn btn-primary" type="button" style="background-color: rgb(255,14,144);">Log Out</button></div>
         </div>
@@ -81,6 +107,12 @@
     <script>
     const accounts = {{ account_info | tojson | safe }};
 	const uid = {{ uid }};
+	//load accounts
+	var dropdown = document.getElementById("dropdown-accounts");
+	for(var i=0;i<accounts.length;i++) {
+		dropdown.innerHTML += '<a href="/account/'+accounts[i]['id']+'">'+accounts[i]['account_name']+'</a></br>';
+	}
+	
 	var userID = uid;
 	var ID = 1;
 	var temp = {"email":"mcho1@illinois.edu","password":"jo1"}
@@ -104,6 +136,8 @@ console.log(localStorage);
 if(ID == null){
 	ID = 1;
 }
+
+
 function changeAccount(cID){
 	localStorage.setItem("ID", cID);	
 	window.location.reload();
