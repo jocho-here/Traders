@@ -91,3 +91,14 @@ def user_signin():
     query = 'UPDATE Users SET last_login="%s" WHERE id=%d' %(utils.get_date_time(), ret['user_id'])
     utils.setter_db(query)
     return jsonify(ret)
+    
+    
+@users.route('/create_user', methods=['GET', 'POST'])
+def create_user():
+	if request.method == 'GET':
+		return render_template('Create/index.html')
+	req = utils.get_req_data()
+	user = req['username']
+	pswd = req['password']
+	manage.register_user(user, pswd)
+	return redirect(url_for('users.user_login'))

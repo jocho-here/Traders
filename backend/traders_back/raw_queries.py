@@ -235,3 +235,12 @@ FROM Users U
 LEFT JOIN Accounts A ON U.id=A.user_id 
 WHERE U.username=%s AND U.password=%s
 """
+
+register_user =\
+"""
+INSERT INTO Users (
+	email, username, password
+) VALUES (
+	"", %s, %s
+)
+"""
