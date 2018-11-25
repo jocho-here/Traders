@@ -96,6 +96,7 @@ def get_position(position_id):
         rtn_val['position']['position_type'] = result['result'][0]['position_type']
         rtn_val['position']['position_status'] = result['result'][0]['position_status']
         rtn_val['position']['volume'] = result['result'][0]['volume']
+        rtn_val['position']['value'] = 12345 #TODO UPDATE VALUE
     else:
         rtn_val = result
 
@@ -139,6 +140,7 @@ def get_positions(account_id, from_date=None, to_date=None, status=None):
             curr_pos['position_type'] = pos['position_type']
             curr_pos['position_status'] = pos['position_status']
             curr_pos['volume'] = pos['volume']
+            curr_pos["value"] = 11234 #TODO SET TO BE CURRENT VAL
             rtn_val['positions'].append(curr_pos)
     else:
         rtn_val['status'] = False
@@ -158,6 +160,7 @@ def create_position(account_id, currency_from, currency_to, time, position_type,
     if total_cost > available_equity:
         rtn_val['status'] = False
         rtn_val['message'] = "Failed to create a new position; Not enough available equity."
+        rtn_val['code'] = 100
 	
     elif result['status']:
         data = [account_id, result['exchange_rate']['id'], position_type, 'open', volume]
@@ -173,6 +176,7 @@ def create_position(account_id, currency_from, currency_to, time, position_type,
     else:
         rtn_val['status'] = False
         rtn_val['message'] = "Failed to create a new position; Could not find the exchange rate"
+        rtn_val['code'] = 200
         
     return rtn_val
 
@@ -223,9 +227,9 @@ def close_position(position_id, close_rate_time):
 # Check whether account_id is associated with the user_id
 #def check_account_id(user_id, account_id)
 
-def create_account(uid, acc_name, equity):
+def create_account(uid, acc_name, equity=100000):
     rtn_val = {}
-    result = setter_db(raw_queries.create_account, data = (name, utils.get_date_time(), uid, equity))
+    result = setter_db(raw_queries.create_account, data = (acc_name, utils.get_date_time(), uid, equity))
     if result['status']:
         rtn_val['status'] = True
     else:
@@ -257,15 +261,16 @@ def get_account_info(acc_id):
         
     acc_info = result['result'][0]
     acc_info["account_id"] = acc_info["id"]
+    acc_info["account_value"] = 12345
     acc_info.pop('id', None)
     rtn_val["account_info"] = acc_info
         
     return rtn_val
 
 
-def delete_account(uid, acc_id):
+def delete_account(acc_id):
     rtn_val = {}
-    del_status = setter_db(raw_queries.delete_account, data=(uid, acc_id))
+    del_status = setter_db(raw_queries.delete_account, data=(acc_id))
     
     if not del_status['status']:
         rtn_val['status'] = False
@@ -284,7 +289,7 @@ def get_user_accounts(uid):
         rtn_val['message'] = "Could not find the user with the user id"
         return rtn_val
     
-    rtn_val["accounts"] = []
+    rtn_val["account_ids"] = []
     accounts = result['result']
     for account in accounts:
         account["account_id"] = account["id"]
@@ -301,10 +306,12 @@ def delete_user(email, password):
 
     if result['status']:
         rtn_val['status'] = True
+        rtn_val['message'] = "Successfully deleted a user"
+        return rtn_val
     else:
         rtn_val['status'] = False
         rtn_val['message'] = result['message']
-    return rtn_val
+        return rtn_val
 
 def sign_up(email, username, password):
     rtn_val = {}
@@ -321,11 +328,12 @@ def sign_up(email, username, password):
         rtn_val['status'] = True
     result = getter_db(raw_queries.get_user_id_from_email, data=(email,))['result']
     rtn_val['user_id'] = result[0]['id']
+    rtn_val['message'] = "Successfully signed up"
 
     return rtn_val
 
 def get_all_users():
-    rtn_val = {'users': []}
+    rtn_val = {"status": True, 'users': []}
     result = getter_db(raw_queries.get_all_users)['result']
 
     for user in result:
@@ -355,10 +363,3 @@ def get_user_info(uid):
     
     return rtn_val
 
-def try_get_user_info(user, pswd):
-	return utils.getter_db(raw_queries.try_retrieve_user_info, (user, pswd))['result']
-    
-    
-def register_user(user, pswd, email):
-	email = user+'@'+'test.com'
-	return utils.setter_db(raw_queries.register_user, (email, user, pswd))

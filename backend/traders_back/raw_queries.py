@@ -204,7 +204,7 @@ WHERE id=%s
 delete_account =\
 """
 DELETE FROM Accounts
-WHERE user_id = %s AND id = %s
+WHERE id = %s
 """
 
 get_account_info_from_uid_accname =\
