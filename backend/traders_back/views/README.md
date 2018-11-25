@@ -23,7 +23,6 @@
         {
             "status": true,
             "message": "Successfully signed up",
-            "email": "someone@email.com",
             "user_id": 123
         }
 
@@ -41,7 +40,6 @@
         {
             "status": true,
             "message": "Successfully deleted a user",
-            "deleted_user_email": "someone@email.com"
         }
 
 ### Get all users [GET]
@@ -125,6 +123,7 @@ This API endpoint exists just for testing.
             "account_name": "someaccountname",
             "account_id": 321,
             "available_equity": 100000.0
+            "account_value": 12345
             "open_date": datetime.datetime(2018, 10, 31, 18, 51, 34), 
             'close_date': None
         }
@@ -158,8 +157,6 @@ If you want to see positions that are with certain status, make a request to
 
         {
             "status": true,
-            "user_id": 123,
-            "account_id": 123,
             "positions": [
                 {
                     "id": 1,
@@ -172,6 +169,7 @@ If you want to see positions that are with certain status, make a request to
                     "position_type": "short",
                     "position_status": "open",
                     "volume": 123.3
+                    "value": 12345
                 },
                 {
                     "id": 1,
@@ -184,6 +182,7 @@ If you want to see positions that are with certain status, make a request to
                     "position_type": "short",
                     "position_status": "open",
                     "volume": 123.3
+                    "value": 12345
                 }
             ]
         }
@@ -217,6 +216,7 @@ or
         }
 Code Representation  
 - 100: Insufficient balance
+- 200: Unknown error. Possibly invalid exchange rate
 
 
 ## Individual Position [/users/{user_id}/accounts/{account_id}/positions/{position_id}]
