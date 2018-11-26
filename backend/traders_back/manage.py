@@ -289,7 +289,7 @@ def get_user_accounts(uid):
         rtn_val['message'] = "Could not find the user with the user id"
         return rtn_val
     
-    rtn_val["account_ids"] = []
+    rtn_val["accounts"] = []
     accounts = result['result']
     for account in accounts:
         account["account_id"] = account["id"]
@@ -363,3 +363,19 @@ def get_user_info(uid):
     
     return rtn_val
 
+
+# sign in user, on successful return {'status':true, 'uid':<int> }
+def sign_in(username, password):
+	rtn_val = {"status":False}
+	result = getter_db(raw_queries.check_user, data=[username, password])
+	if result['status']:
+		user = result['result']
+		if len(user) > 0:
+			rtn_val['status'] = True
+			rtn_val['uid'] = result['result'][0]['id']
+			setter_db(raw_queries.update_login_time, (utils.get_date_time(), rtn_val['uid']))
+			return rtn_val
+	return rtn_val
+	
+	
+	
