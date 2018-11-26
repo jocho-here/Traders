@@ -244,3 +244,18 @@ INSERT INTO Users (
 	%s, %s, %s
 )
 """
+
+###Check if user exists, when sign in
+check_user =\
+"""
+SELECT id FROM Users 
+WHERE username=%s and password=%s
+"""
+
+###Update last_login when user login
+update_login_time =\
+"""
+UPDATE Users
+SET last_login=%s
+WHERE id=%s
+"""
