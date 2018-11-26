@@ -33,5 +33,5 @@
 
 ## Feed Exchange Rates (Important)
 1. source tests/download_cmd.sh
-2. python tests/upload_rates.py
+2. python tests/upload_rates.py <Dir to the downloaded foler>
     - Thses two might take long, interrupt the processing if needed, but keep in mind create position will be based on any conversion to "USD". If testing with buying currency A to currency B, it is important that there is conversion of currency A and B to USD.
