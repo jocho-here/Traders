@@ -289,7 +289,7 @@ def get_user_accounts(uid):
         rtn_val['message'] = "Could not find the user with the user id"
         return rtn_val
     
-    rtn_val["account_ids"] = []
+    rtn_val["accounts"] = []
     accounts = result['result']
     for account in accounts:
         account["account_id"] = account["id"]
