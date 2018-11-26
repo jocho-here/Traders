@@ -29,3 +29,9 @@
 2. Run the Flask backend
     - `pipenv shell`
     - `python app.py`
+
+
+## Feed data (Important)
+1. source tests/download_cmd.sh
+2. python tests/upload_rates.py
+    - Thses two might take long, interrupt the processing if needed, but keep in mind create position will be based on any conversion to "USD".
