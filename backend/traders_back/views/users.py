@@ -100,7 +100,7 @@ def create_user():
 	req = utils.get_req_data()
 	user = req['username']
 	pswd = req['password']
-	ret = manage.register_user(user, pswd, "")
+	ret = manage.sign_up(user+'@test.com', user, pswd)
 	if not ret['status']:
 		return ret['message']
 	return redirect(url_for('users.user_login'))
