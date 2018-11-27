@@ -34,60 +34,6 @@
         <div class="container"><a class="navbar-brand logo" href="#">Trader Capital</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse"
                 id="navbarNav">
-                <ul class="nav navbar-nav ml-auto"></ul><button class="btn btn-primary" type="button" style="background-color: rgb(77,255,14);">Create Account</button><button class="btn btn-primary" type="button" style="background-color: rgb(244,127,20);">Delete Account</button>
-                <button
-                    class="btn btn-primary" type="button" style="background-color: rgb(112,181,211);">History</button><button class="btn btn-primary" type="button" style="background-color: rgb(255,14,144);">Log Out</button></div>
-        </div>
-    </nav>
-    <nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient">
-        <div class="container"><a class="navbar-brand logo" href="#">Trader Capital</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse"
-                id="navbarNav">
-                <ul class="nav navbar-nav ml-auto"></ul><button class="btn btn-primary" type="button" style="background-color: rgb(77,255,14);">Create Account</button><button class="btn btn-primary" type="button" style="background-color: rgb(244,127,20);">Delete Account</button>
-                <button
-                    class="btn btn-primary" type="button" style="background-color: rgb(112,181,211);">History</button><button class="btn btn-primary" type="button" style="background-color: rgb(255,14,144);">Log Out</button></div>
-        </div>
-    </nav>
-    <nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient">
-        <div class="container"><a class="navbar-brand logo" href="#">Trader Capital</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse"
-                id="navbarNav">
-                <ul class="nav navbar-nav ml-auto"></ul><button class="btn btn-primary" type="button" style="background-color: rgb(77,255,14);">Create Account</button><button class="btn btn-primary" type="button" style="background-color: rgb(244,127,20);">Delete Account</button>
-                <button
-                    class="btn btn-primary" type="button" style="background-color: rgb(112,181,211);">History</button><button class="btn btn-primary" type="button" style="background-color: rgb(255,14,144);">Log Out</button></div>
-        </div>
-    </nav>
-    <nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient">
-        <div class="container"><a class="navbar-brand logo" href="#">Trader Capital</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse"
-                id="navbarNav">
-                <ul class="nav navbar-nav ml-auto"></ul><button class="btn btn-primary" type="button" style="background-color: rgb(77,255,14);">Create Account</button><button class="btn btn-primary" type="button" style="background-color: rgb(244,127,20);">Delete Account</button>
-                <button
-                    class="btn btn-primary" type="button" style="background-color: rgb(112,181,211);">History</button><button class="btn btn-primary" type="button" style="background-color: rgb(255,14,144);">Log Out</button></div>
-        </div>
-    </nav>
-    <nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient">
-        <div class="container"><a class="navbar-brand logo" href="#">Trader Capital</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse"
-                id="navbarNav">
-                <ul class="nav navbar-nav ml-auto"></ul><button class="btn btn-primary" type="button" style="background-color: rgb(77,255,14);">Create Account</button><button class="btn btn-primary" type="button" style="background-color: rgb(244,127,20);">Delete Account</button>
-                <button
-                    class="btn btn-primary" type="button" style="background-color: rgb(112,181,211);">History</button><button class="btn btn-primary" type="button" style="background-color: rgb(255,14,144);">Log Out</button></div>
-        </div>
-    </nav>
-    <nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient">
-        <div class="container"><a class="navbar-brand logo" href="#">Trader Capital</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse"
-                id="navbarNav">
-                <ul class="nav navbar-nav ml-auto"></ul><button class="btn btn-primary" type="button" style="background-color: rgb(77,255,14);">Create Account</button><button class="btn btn-primary" type="button" style="background-color: rgb(244,127,20);">Delete Account</button>
-                <button
-                    class="btn btn-primary" type="button" style="background-color: rgb(112,181,211);">History</button><button class="btn btn-primary" type="button" style="background-color: rgb(255,14,144);">Log Out</button></div>
-        </div>
-    </nav>
-    <nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient">
-        <div class="container"><a class="navbar-brand logo" href="#">Trader Capital</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse"
-                id="navbarNav">
                 <ul class="nav navbar-nav ml-auto"></ul>
                 
                 <div class="dropdown">
@@ -147,8 +93,6 @@ var url  = "http://localhost:8080/signin"
 xmlHttp.open("POST", url, false); // false for synchronous request
 xmlHttp.setRequestHeader("Content-Type", "Accept: application/json;charset=UTF-8");
 xmlHttp.overrideMimeType("application/json");
-document.write("<b> Accounts</b> </a> <br/><br/> <table id='account_table'>")
-document.write("  <tr> <th>Account Name </th> <th> View </th> <th> Delete </th> </tr>")
 var cpy;
 function deleteAccount(userID, aid){
 	var u = "http://localhost:8080/" + userID + "/" + aid;
@@ -192,7 +136,6 @@ xmlHttp.onreadystatechange = function(e) {//Call a function when the state chang
         document.write("</table><br/>&nbsp;&nbsp;&nbsp;&nbsp;<input id = 'nme' type='text'> &nbsp;&nbsp; <button type='button' onclick='createAccount(" + IDS.length+ ", " + userID + ")'> Create Account </button>")
     }
 }
-xmlHttp.send(JSON.stringify(temp));
     </script>
     <br/><br/>
     <a class = "text"><pre>  <u>From</u>       <u>To</u><br/></pre></a>
@@ -355,15 +298,14 @@ if(gTa != null){
 	}
 }
 var skip = it * parseInt(g);
+var d2 = 0
 for(var i = 0; i < c.exchange_rates.length; i++){
 	curr = c.exchange_rates[i].time;
-	curr = curr.replace(" ", "T");
 	var d1 = new Date(curr)
-	var d2 = new Date(prev)
 	d1 = new Date(d1.toUTCString())
-	d2 = new Date(d2.toUTCString())
-	var diff = (d1.getTime() - d2.getTime())/1000
+	var diff = (d1.getTime() - d2)/1000
 	if((prev == curr) || (diff >= skip)){
+		d2 = d1.getTime();
 		prev = curr;
 		document.write("<tr>")
 		document.write("<td>" + c.currency_from + "</td>");
