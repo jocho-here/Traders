@@ -153,9 +153,9 @@ def create_position(account_id, currency_from, currency_to, time, position_type,
     available_equity = accinfo["available_equity"]
     
     result = get_exchange_rates(currency_from, currency_to, time=time)
-    total_cost = volume*(1/result["exchange_rate"]["bid"])
-    if currency_from != "USD":
-        conversion_result = get_exchange_rates("USD", currency_from, time=time)
+    total_cost = float(volume)*(1/result["exchange_rate"]["bid"])
+    if currency_from != "CAD":
+        conversion_result = get_exchange_rates("CAD", currency_from, time=time)
         total_cost  = total_cost*(1/conversion_result["exchange_rate"]["bid"])
     if total_cost > available_equity:
         rtn_val['status'] = False
@@ -202,8 +202,8 @@ def close_position(position_id, close_rate_time):
             account_id = pos_info["account_id"]
             volume = pos_info["volume"]
             total_cost = volume*close_rate["ask"]
-            if open_info["currency_from"] != "USD":
-                conversion_result = get_exchange_rates("USD", open_info['currency_from'], time=close_rate_time)
+            if open_info["currency_from"] != "CAD":
+                conversion_result = get_exchange_rates("CAD", open_info['currency_from'], time=close_rate_time)
                 total_cost = total_cost*conversion_result["ask"]
             update_equity_status = setter_db(raw_queries.update_equity, data=(total_cost, account_id))
             result = setter_db(raw_queries.close_position_with_id, (close_rate['id'], "closed", position_id))
@@ -226,10 +226,10 @@ def close_position(position_id, close_rate_time):
 # TODO
 # Check whether account_id is associated with the user_id
 #def check_account_id(user_id, account_id)
-
 def create_account(uid, acc_name, equity=100000):
     rtn_val = {}
-    result = setter_db(raw_queries.create_account, data = (acc_name, utils.get_date_time(), uid, equity))
+    print(raw_queries.create_account)
+    result = setter_db(raw_queries.create_account, data = (uid, acc_name,  equity, utils.get_date_time()))
     if result['status']:
         rtn_val['status'] = True
     else:
@@ -376,6 +376,5 @@ def sign_in(username, password):
 			setter_db(raw_queries.update_login_time, (utils.get_date_time(), rtn_val['uid']))
 			return rtn_val
 	return rtn_val
-	
 	
 	

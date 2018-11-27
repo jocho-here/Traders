@@ -68,7 +68,7 @@ def specific_position(user_id, account_id, position_id):
         rtn_val = manage.get_position_from_id(position_id)
     elif request.method == 'PUT':
         if 'close_rate_time' in req and 'open_rate_id' in req:
-            rtn_val = manage.close_position(position_id, req['open_rate_id'], req['close_rate_time'])
+            rtn_val = manage.close_position(position_id, req['close_rate_time'])
         else:
             rtn_val['status'] = False
             rtn_val['message'] = "Request is missing close_rate_time"
