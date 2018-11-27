@@ -13,6 +13,10 @@ tables = ['Positions', 'Accounts', 'Users', 'ExchangeRates']
 ERR_ACCOUNT_ID = 'User with such account id does not exist'
 DT_FORMAT = '%Y-%m-%d %H:%M:%S'
 
+# Return float with 3 decimal places corresponding to database
+def format_float(f):
+	return float("{0:.3f}".format(f))
+
 # Return current time frame
 def get_date_time():
     return time.strftime(DT_FORMAT)
