@@ -144,7 +144,6 @@ def get_positions(account_id, from_date=None, to_date=None, status=None):
             rtn_val['positions'].append(curr_pos)
     else:
         rtn_val['status'] = False
-
     return rtn_val  
     
 def create_position(account_id, currency_from, currency_to, time, position_type, volume):
@@ -154,8 +153,8 @@ def create_position(account_id, currency_from, currency_to, time, position_type,
     
     result = get_exchange_rates(currency_from, currency_to, time=time)
     total_cost = float(volume)*(1/result["exchange_rate"]["bid"])
-    if currency_from != "CAD":
-        conversion_result = get_exchange_rates("CAD", currency_from, time=time)
+    if currency_from != "USD":
+        conversion_result = get_exchange_rates("USD", currency_from, time=time)
         total_cost  = total_cost*(1/conversion_result["exchange_rate"]["bid"])
     if total_cost > available_equity:
         rtn_val['status'] = False
@@ -182,6 +181,8 @@ def create_position(account_id, currency_from, currency_to, time, position_type,
 
 def close_position(position_id, close_rate_time):
     rtn_val = {}
+    if close_rate_time == "":
+        close_rate_time = datetime.now()
     open_info = getter_db(raw_queries.get_open_rate_info_with_id, data=(position_id,))["result"][0]
     close_rate = get_exchange_rates(open_info['currency_from'], open_info['currency_to'], time=close_rate_time)
     if close_rate['status']:
@@ -202,8 +203,8 @@ def close_position(position_id, close_rate_time):
             account_id = pos_info["account_id"]
             volume = pos_info["volume"]
             total_cost = volume*close_rate["ask"]
-            if open_info["currency_from"] != "CAD":
-                conversion_result = get_exchange_rates("CAD", open_info['currency_from'], time=close_rate_time)
+            if open_info["currency_from"] != "USD":
+                conversion_result = get_exchange_rates("USD", open_info['currency_from'], time=close_rate_time)
                 total_cost = total_cost*conversion_result["ask"]
             update_equity_status = setter_db(raw_queries.update_equity, data=(total_cost, account_id))
             result = setter_db(raw_queries.close_position_with_id, (close_rate['id'], "closed", position_id))
