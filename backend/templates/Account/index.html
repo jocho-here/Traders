@@ -362,6 +362,18 @@ for(var i = 0; i < c.positions.length; i++){
         document.write("<td> <button type='button' onclick='sell(" + (i+1) + ")'>Sell</button></td>");
         document.write("</tr>")
     }
+    else{
+		document.write("<tr>");
+        document.write("<input type='hidden' id='position_id_" + (i+1) +"'" + (i+1) + "' value='" + c.positions[i].id+ "'>");
+        document.write("<input type='hidden' id='open_rate_id_" + (i+1) +"'" + (i+1) + "' value='" + c.positions[i].open_rate_id+ "'>");
+        document.write("<td>" + c.positions[i].currency_from + "</td>");
+        document.write("<td>" + c.positions[i].currency_to + "</td>");
+        document.write("<td>" + c.positions[i].open_rate_time + "</td>");
+        document.write("<td>" + c.positions[i].volume + "</td>");
+        document.write("<td>" + c.positions[i].close_rate_id + "</td>");
+        document.write("<td>" + c.positions[i].value+ "</td>");
+        document.write("</tr>")
+    }
 }
 </script>
                     </tbody>
