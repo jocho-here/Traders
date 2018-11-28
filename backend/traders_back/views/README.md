@@ -233,6 +233,7 @@ Code Representation
                 "position_type": "long",
                 "position_status": "open",
                 "volume": 123.3
+                "value" : 12345 #Updated only on close for now 
             }
         }
 
