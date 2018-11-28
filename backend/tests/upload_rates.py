@@ -69,9 +69,9 @@ def __main__():
     
     if args.j > 1:
         pool = Pool(processes=args.j)
-        pool.map(upload_file, glob.iglob('{}/.*.zip'.format(args.download_dir), recursive=True))
+        pool.map(upload_file, glob.iglob('{}/**/.*.zip'.format(args.download_dir), recursive=True))
     else:
-        for filename in glob.iglob('{}/.*.zip'.format(args.download_dir), recursive=True):
+        for filename in glob.iglob('{}/**/.*.zip'.format(args.download_dir), recursive=True):
             upload_file(filename)
             
 if __name__=="__main__":
