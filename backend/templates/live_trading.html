@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+  <title>Account</title>
+</head>
+
+<body>
+
+<div id="balanceChart" style="height: 36vh; width: 64vh;"></div>    
+
+</br></br>
+ (<a><b>Virtual Time</b></a> : <a id="virtual-time">virtual_time</a>)  </br>
+<select id="graph" onchange="onGraphChange()">
+  <option value="candle">candle</option>
+  <option value="line" selected>line</option>
+</select>
+<select id="diff" onchange="onDiffChange()">
+  <option value="30m" selected>30m</option>
+  <option value="2hr">2hr</option>
+</select>
+</br>
+<input type="number" id="volume-buy"/>
+  <button type="button" onclick="directBuy()"> Buy </button></br>
+ <input type="number" id="volume-sell"/>
+  <button type="button" onclick="directSell()"> Sell </button>
+
+</br><font size="6" id="rate-id"><b> usd-jpy </b></font>
+<font size="6" id="rate"><b>  </b></font>
+ 
+<div id="chartContainer" style="height: 36%; width: 64%;"></div>    
+    
+
+</br></br></br>
+
+<div style="position: absolute; top:20%; right:20%;">
+<b> Position Table </b> 
+<br/><br/>
+<table  id='position_table'>
+</table> 
+</div>
+
+</body>
+<script>
+const origin = location.origin;
+const accounts = {{ account_info | tojson | safe }};
+const uid = {{ uid }} , accid = accounts[0]['account_id'];
+
+//TODO: Simply use globla to keep track of exchange rates, should be changed to a better way later on
+var from = "USD", to = "JPY", virtualTime, virtualStart, accChart, accPt = [];
+
+window.onload = function () {
+	getVirtualTime();
+    update_position_table();
+    render_account_balance();
+};
+
+function fillData() {
+	for (var i=0; i<dataLength; i++) {
+		dps.push({
+			label: datetimeToDate(virtualStart),
+			y: null
+		});
+	 	dpcandle.push({
+			label: datetimeToDate(virtualStart),
+			y: null
+	 	});
+	 	accPt.push({
+			label: datetimeToDate(virtualStart),
+	 		y:0
+	 	});
+	 	virtualStart.setTime(virtualStart.getTime() + 30*60000);
+	}
+	render_account_balance();
+	onGraphChange();
+}
+
+function render_account_balance() {
+	accChart = new CanvasJS.Chart("balanceChart", {
+		zoomEnabled: true,
+		axisX: {
+		    tickLength: 0,
+    		gridThickness: 0,
+			labelFormatter: function() { return "" }
+		},
+		axisY: {
+		    tickLength: 0,
+    gridThickness: 0,
+
+			includeZero: false,
+		},      
+		data: [{
+			markerType: "none", 
+			type: "line",
+			dataPoints: accPt
+		}]
+	});
+}
+
+function getVirtualTime() {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			virtualTime = new Date(xhttp.responseText);
+			virtualStart = new Date(virtualTime);
+			fillData();
+		}
+	};
+	xhttp.open("GET", "/virtual_time", true);
+	xhttp.send();
+}
+
+function directSell(index) {
+    console.log(positions[index]);
+}
+
+function directBuy() {
+	var volume = Number(document.getElementById('volume-buy').value);
+	if ( volume && Number.isInteger(volume) ) {
+		var url = origin + '/users/' + uid + '/accounts/' + accid + '/positions';
+		var params = {
+		  "currency_from": from,
+		  "currency_to": to,
+		  "time": virtualTime,
+		  "position_type": "long",
+		  "volume": volume
+		};
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+		    if (this.readyState == 4 && this.status == 200) {
+		       var response = JSON.parse( xhttp.responseText );
+		       if (!response['status']) {
+		            console.log(response('message'));
+		       } else {
+		            //Why update again? Position could be partially filled.
+		            update_position_table();
+		       }
+		    }
+		};
+		xhttp.open('POST', url, true);
+		xhttp.send(JSON.stringify(params));
+	}
+}
+
+function update_position_table() {
+    var table = document.getElementById("position_table");
+    reset_table(table);
+    var url = origin + '/users/' + uid + '/accounts/' + accid + '/positions';
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+           var response = JSON.parse( xhttp.responseText );
+           if ( response['status'] ) {
+                positions = response['positions'];
+                for (var i=0; i<positions.length; i++) {
+                    var row = table.insertRow(i);
+                    var cell0 = row.insertCell(0);
+                    var cell1 = row.insertCell(1);
+                    var cell2 = row.insertCell(2);
+                    cell0.innerHTML = positions[i]['currency_from'] + '_' + positions[i]['currency_to'];
+                    cell1.innerHTML = positions[i]['volume'];
+                    cell2.innerHTML = '<button type="button" onclick="directSell('+i+')"> Close </button>';
+                }
+           } 
+        }
+    };
+    xhttp.open('GET', url, true);
+    xhttp.send();    
+}
+
+// helper function reset table, leaves header alone
+function reset_table(table) {
+        for (var i=0; i<table.rows.length; i++) {
+            table.deleteRow(0);
+        }
+}
+
+
+//convert mysql dateime to javascript dates
+function datetimeToDate(datetime) {
+	return CanvasJS.formatDate(datetime, "hh:mm TT")
+}
+
+
+var duration = 3600; //in seconds
+//interval, how many seconds a point; prerender how many points, 
+var interval = 30, prerender = 60, updateInterval = 1000;
+var renderer; //timer
+/**
+	current: current point index,
+	currentInterval: current second, 
+	updateInterval: update frequecy in ms
+	dataLength: number of visible data 
+ */
+var current = 0, granularity = 5*60000, dataLength = 60; 
+var chart, dps = [], dpcandle = [], sessionHi = 0, sessionLo = 9007199254740992;
+ 
+//When data points exceeds datalength
+function incrementChart() {
+	for (var i=dataLength; i<dataLength*2; i++) {
+	 	virtualStart.setTime(virtualStart.getTime() + 30*60000);
+		dps.push({
+			label: datetimeToDate(virtualStart),
+			y: null
+		});
+		dpcandle.push({
+			label: datetimeToDate(virtualStart),
+			y: null
+	 	});
+	}
+	dataLength *= 2;
+}
+ 
+function renderChart() {
+chart = new CanvasJS.Chart("chartContainer", {
+	zoomEnabled: true,
+	axisY: {
+		title: "Rate",
+		includeZero: false,
+	},      
+	data: [{
+		markerType: "none", 
+		type: "line",
+		yValueFormatString: "$0.00",
+		dataPoints: dps
+	}]
+});
+}
+
+// chart update function
+var updateChart = function () {
+	var req = {
+		"currency_from": from,
+		"currency_to": to,
+	}
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+           var res = JSON.parse(xmlhttp.responseText);
+           var curTime = new Date(res['time']);
+           var ask = res['ask'];
+           if (dpcandle[current]['y'] == null) {
+           		dpcandle[current]['y'] = [ask,,,];
+           }
+           if (curTime - virtualTime > granularity) {
+           	  dpcandle[current]['y'][3] = ask;
+           	   if (ask> sessionHi)
+           		sessionHi = ask;
+           	   if (ask< sessionLo)
+           		sessionLo = ask;
+           	  dpcandle[current]['y'][2] = sessionLo;
+           	  dpcandle[current]['y'][1] = sessionHi;
+           	  sessionLo = 9007199254740992;
+           	  sessionHi = 0;
+           	  current += 1;
+           	  virtualTime.setTime(virtualTime.getTime() + granularity);
+           }
+           if (current == dataLength) {
+           	  incrementChart();
+           }
+           dps[current]['y'] = ask;
+           if (ask> sessionHi)
+           		sessionHi = ask;
+           if (ask< sessionLo)
+           		sessionLo = ask;
+           document.getElementById("virtual-time").innerHTML=curTime;
+           document.getElementById('rate').innerHTML='$'+res['ask'];
+           chart.render();
+           accChart.render();
+        } 
+    };   
+	xmlhttp.open("POST", "/chart_point");
+	xmlhttp.setRequestHeader("Content-Type", "application/json");
+	xmlhttp.send(JSON.stringify(req));
+};
+
+function renderCandle() {
+	chart = new CanvasJS.Chart("chartContainer", {
+	zoomEnabled: true,
+	animationEnabled: true,
+	theme: "light2", // "light1", "light2", "dark1", "dark2"
+	subtitles: [{
+		text: "Weekly Averages"
+	}],
+	axisY: {
+		includeZero: false,
+		prefix: "$",
+		title: "Price"
+	},
+	toolTip: {
+		content: "Date: {x}<br /><strong>Price:</strong><br />Open: {y[0]}, Close: {y[3]}<br />High: {y[1]}, Low: {y[2]}"
+	},
+	data: [{
+		type: "candlestick",
+		dataPoints: dpcandle
+	}]
+	});
+}
+
+function onDiffChange() {
+
+}
+
+function onGraphChange() {
+	var s = document.getElementById("graph").value;
+	if (s == 'candle') {
+		renderCandle();
+	} else {
+		renderChart();
+	}
+	clearInterval(renderer);
+	updateChart();
+	chart.render();
+	renderer = setInterval(function(){updateChart()}, updateInterval);
+}
+
+
+</script>
+
+
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+
+
