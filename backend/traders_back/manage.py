@@ -229,8 +229,7 @@ def close_position(position_id, close_rate_time):
 #def check_account_id(user_id, account_id)
 def create_account(uid, acc_name, equity=100000):
     rtn_val = {}
-    print(raw_queries.create_account)
-    result = setter_db(raw_queries.create_account, data = (uid, acc_name,  equity, utils.get_date_time()))
+    result = setter_db(raw_queries.create_account, data = (acc_name, utils.get_date_time(), uid, equity, ))
     if result['status']:
         rtn_val['status'] = True
     else:
@@ -262,7 +261,7 @@ def get_account_info(acc_id):
         
     acc_info = result['result'][0]
     acc_info["account_id"] = acc_info["id"]
-    acc_info["account_value"] = 12345
+    acc_info["account_value"] = 12345 #TODO UPDATE ON GET
     acc_info.pop('id', None)
     rtn_val["account_info"] = acc_info
         
