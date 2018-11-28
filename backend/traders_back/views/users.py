@@ -18,6 +18,21 @@ def user_login():
 
     return render_template("login.html")
 
+@users.route('/verify_login', methods=['POST'])
+def script_login():
+    rtn_val = {"status": False}
+    if request.method == 'POST':
+        req = utils.get_req_data()
+        user = req['userName']
+        pswd = req['passWord']
+        print(user, pswd)
+        ret = manage.sign_in(user, pswd)
+        if ret['status']:
+            rtn_val["status"] = True
+            rtn_val["uid"] = ret["uid"]
+    return jsonify(rtn_val)
+
+
 def get_account_info_help(uid):
     res = manage.get_user_accounts(uid)
     if res['status']:
