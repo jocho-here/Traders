@@ -1,4 +1,17 @@
 <!DOCTYPE html>
+{% block content %}
+<div class="container">
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+
+    {% block page_content %}{% endblock %}
+</div>
+{% endblock %}
+{% block body %}{% endblock %}
 <html>
 
 <head>
@@ -22,7 +35,7 @@ var logged = {{logged}};
             <div class="form-group"><input class="form-control" name="userName" placeholder="Username"></div>
     <div class="form-group"><input class="form-control" type="password" name="passWord" placeholder="Password"></div>
     <div class="form-group"><button class="btn btn-primary btn-block" type="submit" style="background-color: rgb(71,171,244);">Log In</button></div>
-    <a href="/create_user"><span style="text-decoration: underline;"><center>Create New Account</center></span></a>
+    <a href="/create_user"><span style="text-decoration: underline;"><center>Create New User</center></span></a>
     </form>
     </div>
 </body>

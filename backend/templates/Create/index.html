@@ -1,4 +1,16 @@
 <!DOCTYPE html>
+{% block content %}
+<div class="container">
+	{% for message in get_flashed_messages() %}
+	<div class="alert alert-warning">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+		{{ message }}
+	</div>
+	{% endfor %}
+
+	{% block page_content %}{% endblock %}
+</div>
+{% endblock %}
 <html>
 
 <head>
@@ -14,7 +26,7 @@
     <div class="newsletter-subscribe">
         <div class="container">
             <div class="intro">
-                <h2 class="text-center">Create Account</h2>
+                <h2 class="text-center">Create A New User</h2>
                 <p class="text-center">Enter your expected Username and Password to Subscribe to the Capital of Currency Exchange</p>
             </div>
             <form class="form-inline" method="post" action="{{ url_for('users.create_user') }}">
