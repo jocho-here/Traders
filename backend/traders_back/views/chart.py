@@ -12,7 +12,15 @@ virtual_time = datetime.datetime(2018,1,1,18,0,0)
 def chart_api():
 	return "candle api"
 	
+@chart.route('/available_exchange_rates')
+def get_available_exchange_rates():
+	q =\
+	"""
+	SELECT DISTINCT currency_from From ExchangeRates 
+	"""
+	return jsonify(utils.getter_db(q)['result'])
 	
+
 @chart.route('/chart_point', methods=['GET', 'POST'])
 def chart_points():
 	req = utils.get_req_data()
@@ -32,6 +40,29 @@ def chart_points():
 	ret = utils.getter_db(q, (session['virtual_time'], fr, to))['result'][0]
 	session['virtual_time'] = ret['time']
 	return jsonify(ret)
+
+"""
+	Chart points every couple minutes, 5 mins by default
+"""
+@chart.route('/chart_history', methods=['POST'])
+def char_history():
+	req = utils.get_req_data()
+	fr = req['currency_from']
+	to = req['currency_to']
+	granularity = req['granularity']
+	q =\
+	"""
+	SELECT E.* FROM ExchangeRates E 
+	NATURAL JOIN (
+		SELECT max(E.id) as id, max(E.time) FROM ExchangeRates E
+		WHERE currency_from=%s AND currency_to=%s
+		AND (time<%s and time>%s)
+		GROUP BY hour(time), floor(minute(time)/5)
+	) T
+	"""
+	return jsonify(utils.getter_db(q, (fr, to, session['virtual_time'], virtual_time))['result'])
+	
+
 
 @chart.route('/chart_candle', methods=['POST'])
 def chart_candle():
