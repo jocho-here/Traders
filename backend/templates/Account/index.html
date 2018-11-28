@@ -239,9 +239,9 @@ function purchase(row)
     var url = "http://localhost:8080/users/" +userID+ "/accounts/" + ID + "/positions";
     xmlHttp.open("POST", url, false); // false for synchronous request
     xmlHttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xmlHttp.send(JSON.stringify({"volume":volume, "currency_from":curr_from,"currency_to":curr_to,"time":time,"position_type":"long"}));
+    var toSend = JSON.stringify({"volume":volume, "currency_from":curr_from,"currency_to":curr_to,"time":time,"position_type":"long"})
+    xmlHttp.send(toSend);
     var result = xmlHttp.responseText;
-
     window.location.reload()
     return result;
 }
@@ -299,6 +299,7 @@ if(gTa != null){
 }
 var skip = it * parseInt(g);
 var d2 = 0
+var row = 0
 for(var i = 0; i < c.exchange_rates.length; i++){
 	curr = c.exchange_rates[i].time;
 	var d1 = new Date(curr)
@@ -310,11 +311,16 @@ for(var i = 0; i < c.exchange_rates.length; i++){
 		document.write("<tr>")
 		document.write("<td>" + c.currency_from + "</td>");
 		document.write("<td>" + c.currency_to + "</td>");
-    	document.write("<td> <p id='time'>" + c.exchange_rates[i].time + "</p></td>");
+		var d = new Date(c.exchange_rates[i].time)
+		d = d.toISOString()
+		d = d.replace("T", " ")
+		d = d.replace(".000Z", "")
+    	document.write("<td>" + d + "</td>");
 		document.write("<td>" + c.exchange_rates[i].bid + "</td>");
-		document.write("<td> <input type='text' id='volume_" + (i+1) + "'>");
-    	document.write("<td> <button type='button' onclick='purchase(" + (i+1) + ")'>Buy</button></td>");
+		document.write("<td> <input type='text' id='volume_" + (row +1) + "'>");
+    	document.write("<td> <button type='button' onclick='purchase(" + (row +1) + ")'>Buy</button></td>");
 		document.write("</tr>")
+		row = row + 1
 	}
 }
 var f = c;
@@ -354,6 +360,18 @@ for(var i = 0; i < c.positions.length; i++){
         document.write("<td>" + c.positions[i].volume + "</td>");
         document.write("<td> <input type='text' id='close_time_" + (i+1) + "'> </td>");
         document.write("<td> <button type='button' onclick='sell(" + (i+1) + ")'>Sell</button></td>");
+        document.write("</tr>")
+    }
+    else{
+		document.write("<tr>");
+        document.write("<input type='hidden' id='position_id_" + (i+1) +"'" + (i+1) + "' value='" + c.positions[i].id+ "'>");
+        document.write("<input type='hidden' id='open_rate_id_" + (i+1) +"'" + (i+1) + "' value='" + c.positions[i].open_rate_id+ "'>");
+        document.write("<td>" + c.positions[i].currency_from + "</td>");
+        document.write("<td>" + c.positions[i].currency_to + "</td>");
+        document.write("<td>" + c.positions[i].open_rate_time + "</td>");
+        document.write("<td>" + c.positions[i].volume + "</td>");
+        document.write("<td>" + c.positions[i].close_rate_id + "</td>");
+        document.write("<td>" + c.positions[i].value+ "</td>");
         document.write("</tr>")
     }
 }
