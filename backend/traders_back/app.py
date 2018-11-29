@@ -7,6 +7,7 @@ from views.users import users
 from views.exchange_rates import exchange_rates
 from views.positions import positions
 from views.model import model
+from views.chart import chart
 
 import os
 # This is where we start our backend app
@@ -25,6 +26,7 @@ app.register_blueprint(users)
 app.register_blueprint(exchange_rates)
 app.register_blueprint(positions)
 app.register_blueprint(model)
+app.register_blueprint(chart)
 
 CORS(app=app)
 
