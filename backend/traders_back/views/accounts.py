@@ -21,6 +21,8 @@ def account_page():
     print('account_name: ', account_name)
     print('----------------------')
 
+    return render_template('Account/index.html', uid=uid, account_id=account_id, account_name=account_name)
+
 @accounts.route('/create_account', methods=['POST'])
 def page_create_account():
     req = utils.get_req_data()
