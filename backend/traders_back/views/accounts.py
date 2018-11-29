@@ -44,7 +44,7 @@ def create_new_account():
 
     if not ret['status']:
         flash("Account name already taken")
-        return render_template('create_account.html', uid=uid)
+        return render_template('create_account.html', uid=uid, user=req['user'])
 
     query = 'SELECT email FROM Users WHERE id=%s'
     email = utils.getter_db(query, (uid))['result'][0]['email']
