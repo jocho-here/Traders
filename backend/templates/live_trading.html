@@ -18,7 +18,7 @@
 </select>
 <select id="diff" onchange="onDiffChange()">
   <option value="30m" selected>30m</option>
-  <option value="2hr">2hr</option>
+  <option value="60m">60m</option>
 </select>
 </br>
 
@@ -52,9 +52,7 @@
 </body>
 <script>
 const origin = location.origin;
-const accounts = {{ account_info | tojson | safe }};
-const uid = {{ uid }} , accid = accounts[0]['account_id'];
-console.log(accounts);
+const uid = 1, accid = 1;
 //TODO: Simply use globla to keep track of exchange rates, should be changed to a better way later on
 var from = "USD", to = "JPY", virtualTime, virtualStart, accChart, accPt = [];
 
@@ -85,7 +83,9 @@ function loadExchangeRates () {
 function loadRateChart() {
 	clearInterval(renderer);
 	var f = document.getElementById("from").value;
+	f = (f=="" ? "USD" : f);
 	var t = document.getElementById("to").value;
+	t = (t=="" ? "JPY" : t);
 	if ( f != t ) {
 		from = f;
 		to = t;
@@ -93,15 +93,16 @@ function loadRateChart() {
 		params = {
 			'currency_from': from,
 			'currency_to': to,
-			'granularity': 30
+			'granularity': granularity/60000
 		};
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
-				var res = JSON.parse(xhttp.responseText);
-				if (res.length > 0)
-					reloadDataPoints(res);
-				onGraphChange();
+				var linePoints = JSON.parse(xhttp.responseText);
+				if (linePoints.length > 0) {
+					loadRateCandle(linePoints, params);
+				}
+			//	onGraphChange();
 			}
 		};
 		xhttp.open("POST", "/chart_history", true);
@@ -109,19 +110,37 @@ function loadRateChart() {
 	}
 }
 
-function reloadDataPoints (res) {
-	if (res.length > dps.length) {
+function loadRateCandle(linePoints, params) {
+	params['end_time'] = virtualTime;
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var candlePoints = JSON.parse(xhttp.responseText);
+			reloadDataPoints(linePoints, candlePoints);
+			onGraphChange();
+		}
+	};
+	xhttp.open("POST", "/candle_history", true);
+	xhttp.send(JSON.stringify(params));
+}
+
+function reloadDataPoints (lines, candles) {
+	var len = lines.length < candles.length ? lines.length : candles.length;
+	if (len > dps.length) {
 		incrementChart();
 	}
-	for (var i=0; i<res.length; i++) {
-		dps[i]['y'] = res[i].ask;
+	for (var i=0; i<len; i++) {
+		dps[i]['y'] = lines[i].ask;
+		dpcandle[i]['y'] = [
+		    candles[i]['open'], 
+		    candles[i]['high'], 
+		    candles[i]['low'], 
+		    candles[i]['close']
+		];
 	}
-	current = res.length - 1;
-	for (var i=res.length; i<dps.length; i++) {
+	current = len - 1;
+	for (var i=current; i<dps.length; i++) {
 		dps[i]['y'] = null;
-	}
-	for (var i=0; i<dpcandle.length; i++) {
-		if (dpcandle[i]['y'] == null) break;
 		dpcandle[i]['y'] = null;
 	}
 }
@@ -140,10 +159,9 @@ function fillData() {
 			label: datetimeToDate(virtualStart),
 	 		y:null
 	 	});
-	 	virtualStart.setTime(virtualStart.getTime() + 30*60000);
+	 	virtualStart.setTime(virtualStart.getTime() + granularity);
 	}
 	render_account_balance();
-	onGraphChange();
 }
 
 function render_account_balance() {
@@ -285,13 +303,13 @@ var renderer; //timer
 	updateInterval: update frequecy in ms
 	dataLength: number of visible data 
  */
-var current = 0, granularity = 5*60000, dataLength = 120; 
+var current = 0, granularity = 30*60000, dataLength = 120; 
 var chart, dps = [], dpcandle = [], sessionHi = 0, sessionLo = 9007199254740992;
  
 //When data points exceeds datalength
 function incrementChart() {
 	for (var i=dataLength; i<dataLength*2; i++) {
-	 	virtualStart.setTime(virtualStart.getTime() + 30*60000);
+	 	virtualStart.setTime(virtualStart.getTime() + granularity);
 		dps.push({
 			label: datetimeToDate(virtualStart),
 			y: null
@@ -324,6 +342,27 @@ chart = new CanvasJS.Chart("chartContainer", {
 });
 }
 
+function updateCandle() {
+	var req = {
+		"currency_from": from,
+		"currency_to": to,
+		"end_time": virtualTime,
+		"granularity": granularity / 60000
+	}
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+        	var ret = JSON.parse(xmlhttp.responseText);
+        	dpcandle[current]['y'] = [
+        		ret['open'], ret['high'], ret['low'], ret['close']
+        	];
+        }
+    };   
+	xmlhttp.open("POST", "/candle_point");
+	xmlhttp.setRequestHeader("Content-Type", "application/json");
+	xmlhttp.send(JSON.stringify(req));
+}
+
 // chart update function
 var updateChart = function () {
 	var req = {
@@ -336,10 +375,11 @@ var updateChart = function () {
            var res = JSON.parse(xmlhttp.responseText);
            var curTime = new Date(res['time']);
            var ask = res['ask'];
-           if (dpcandle[current]['y'] == null) {
-           		dpcandle[current]['y'] = [ask,,,];
-           }
+         //  if (dpcandle[current]['y'] == null) {
+         //  		dpcandle[current]['y'] = [ask,,,];
+         //  }
            if (curTime - virtualTime > granularity) {
+           /*
            	  dpcandle[current]['y'][3] = ask;
            	   if (ask> sessionHi)
            		sessionHi = ask;
@@ -349,6 +389,7 @@ var updateChart = function () {
            	  dpcandle[current]['y'][1] = sessionHi;
            	  sessionLo = 9007199254740992;
            	  sessionHi = 0;
+           	*/
            	  current += 1;
            	  virtualTime.setTime(virtualTime.getTime() + granularity);
            }
@@ -356,10 +397,10 @@ var updateChart = function () {
            	  incrementChart();
            }
            dps[current]['y'] = ask;
-           if (ask> sessionHi)
+          /* if (ask> sessionHi)
            		sessionHi = ask;
            if (ask< sessionLo)
-           		sessionLo = ask;
+           		sessionLo = ask; */
            document.getElementById("virtual-time").innerHTML=curTime;
            document.getElementById('rate').innerHTML='$'+res['ask'];
            chart.render();
@@ -399,7 +440,23 @@ function renderCandle() {
 }
 
 function onDiffChange() {
+	var s = document.getElementById("diff").value;
+	if ( s == '30m' ) {
+		granularity = 30 * 60000;
+	} else {
+		granularity = 60 * 60000;
+	}
+	loadRateChart();
+	if ( document.getElementById("graph").value == 'candle') {
+		renderCandle();
+	} else {
+		renderChart();
+	}
+}
 
+function update_current_datapoints() {
+	updateChart();
+	updateCandle();
 }
 
 function onGraphChange() {
@@ -410,9 +467,9 @@ function onGraphChange() {
 		renderChart();
 	}
 	clearInterval(renderer);
-	updateChart();
+	update_current_datapoints();
 	chart.render();
-	renderer = setInterval(function(){updateChart()}, updateInterval);
+	renderer = setInterval(function(){update_current_datapoints()}, updateInterval);
 }
 
 
