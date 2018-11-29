@@ -16,7 +16,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Untitled</title>
+    <title>Create User</title>
     <link rel="stylesheet" href="../static/css/create_assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../static/css/create_assets/css/Newsletter-Subscription-Form.css">
     <link rel="stylesheet" href="../static/css/create_assets/css/styles.css">
@@ -43,7 +43,7 @@
     <div class="newsletter-subscribe">
         <div class="container">
             <div class="intro">
-                <h2 class="text-center">Create Account</h2>
+                <h2 class="text-center">Create New User</h2>
                 <p class="text-center">Enter your expected Email, Username and Password to Subscribe to the Capital of Currency Exchange</p>
             </div>
             <form class="form-inline" method="post" action="{{ url_for('users.create_user') }}">
@@ -52,7 +52,7 @@
                 <input class="form-control" id="uname" placeholder="Username" name="username">
                 <input class="form-control" type="password" id="em" placeholder="Password" name="password">
                 </div>
-                <div class="form-group"><button class="btn btn-primary" onclick = "creatUser()" type="submit">Create</button></div>
+                <div class="form-group"><button class="btn btn-primary" onclick = "createUser()" type="submit">Create</button></div>
             </form>
         </div>
     </div>
