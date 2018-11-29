@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+{% block content %}
+<div class="container">
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+
+    {% block page_content %}{% endblock %}
+</div>
+{% endblock %}
+{% block body %}{% endblock %}
+
+<html lang="en" >
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title> Create Account </title>
+  <link rel="stylesheet" href="../static/assets/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
+  <link rel="stylesheet" href="../static/assets/fonts/ionicons.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/css/pikaday
+.min.css">
+</head>
+
+<body>
+  <script>
+    function createAccount() {
+      var req = new XMLHttpRequest();
+      var url = "http://localhost:8080/new_account?uid=" ;
+      var uid = {{ uid }};
+      console.log(uid);
+    }
+  </script>
+  <div class="newsletter-subscribe">
+    <div class="container">
+      <div class="intro">
+        <h2 class="text-center">Create New Account</h2>
+      </div>
+      <form class="form-inline" method="post" action="{{ url_for('accounts.create_new_account') }}">
+        <div class="form-group">
+          <input class="form-control" id="account_name" placeholder="Account Name" name="account_name">
+          <input class="form-control" id="equity" placeholder="Equity" name="equity">
+          <input class="form-control" type="hidden" id="uid" name="uid" value={{ uid }}>
+          <input class="form-control" type="hidden" id="user" name="user" value={{ user }}>
+          <button class="btn btn-primary"
+                  onclick="createAccount()" 
+                  type="submit">Create
+          </button>
+        </div>
+      </form>
+      </div>
+    </div>
+  </div>
+</body>
