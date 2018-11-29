@@ -51,13 +51,12 @@
 
     <main class="page lanidng-page">
     <script>
-    const accounts = {{ account_info | tojson | safe }};
+  const account_id = {{ account_id }};
+  const account_name = {{ account_name }};
 	const uid = {{ uid }};
 	//load accounts
 	var dropdown = document.getElementById("dropdown-accounts");
-	for(var i=0;i<accounts.length;i++) {
-		dropdown.innerHTML += '<a href="/account/'+accounts[i]['id']+'">'+accounts[i]['account_name']+'</a></br>';
-	}
+  dropdown.innerHTML += '<a href="/account/'+account_id+'">'+account_name+'</a></br>';
 	
 	var userID = uid;
 	var ID = 1;
