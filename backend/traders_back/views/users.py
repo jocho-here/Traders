@@ -12,6 +12,7 @@ def user_login():
         user = req['userName']
         pswd = req['passWord']
         ret = manage.sign_in(user, pswd)
+
         if not ret['status']:
             flash("Invalid User Credential")
             return render_template("login.html")
@@ -76,35 +77,21 @@ def get_user_info(uid):
     ret['users'] = data
     return jsonify(ret)
        
-""" 
-@users.route('/signin', methods=['POST'])
-def user_signin():
-    req = utils.get_req_data()
-    email = req['email']
-    pswd = req['password']
-    return manage.sign_in(email, pswd)
-    ret = manage.try_get_user_info(email, pswd)
-    accounts = ret.pop('result')
-    if len(accounts) == 0:
-        ret['status'] = False
-        ret['message'] = 'Sign in authentication failed. Please check email or password'
-        return jsonify(ret)
-    ret['user_id'] = accounts[0]['uid']
-    accounts = [i['accid'] for i in accounts]
-    ret['account_ids'] = accounts
-    query = 'UPDATE Users SET last_login="%s" WHERE id=%d' %(utils.get_date_time(), ret['user_id'])
-    utils.setter_db(query)
-    return jsonify(ret)
-"""  
-    
 @users.route('/create_user', methods=['GET', 'POST'])
 def create_user():
-	if request.method == 'GET':
-		return render_template('Create/index.html')
-	req = utils.get_req_data()
-	user = req['username']
-	pswd = req['password']
-	ret = manage.sign_up(user+'@test.com', user, pswd)
-	if not ret['status']:
-		return ret['message']
-	return redirect(url_for('users.user_login'))
+    if request.method == 'GET':
+        return render_template('Create/index.html')
+
+    req = utils.get_req_data()
+    user = req['username']
+    pswd = req['password']
+    email = req['email']
+
+    ret = manage.sign_up(email, user, pswd)
+
+    if not ret['status']:
+        flash("User name already taken")
+        return render_template('Create/index.html')
+
+    flash("Successfully created a new user")
+    return redirect(url_for('users.user_login'))
