@@ -42,18 +42,39 @@
 {% block body %}
 <div align="center" class="container">
   {% for account in accounts %}
-  <form align="center" method="post" action="{{ url_for('accounts.account_page') }}">
-    <input name="uid" id="uid" type="hidden" value={{ uid }}></input>
-    <input name="account_id" id="account_id" type="hidden" value={{ account.account_id }}></input>
-    <input name="account_name" id="account_name" type="hidden" value={{ account.account_name }}></input>
-    <button
-      type="submit"
-      class="btn btn-primary btn-lg"
-      style="background-color: rgb(71,171,244);">{{ account.account_name }}
-    </button>
-    <h2 style="margin-bottom:20px">: {{ account.available_equity }}</h2>
-    <h2 style="margin-bottom:20px">: {{ account }}</h2>
-  </form>
+    {% if account.close_date is none %}
+      <form align="center" method="post" action="{{ url_for('accounts.account_page') }}">
+        <input name="uid" id="uid" type="hidden" value={{ uid }}></input>
+        <input name="account_id" id="account_id" type="hidden" value={{ account.account_id }}></input>
+        <input name="account_name" id="account_name" type="hidden" value={{ account.account_name }}></input>
+        <button
+          type="submit"
+          class="btn btn-primary btn-lg"
+          style="background-color: rgb(71,171,244);">{{ account.account_name }}
+        </button>
+      </form>
+      <button type="button" class="btn btn-secondary btn-lg" onclick="deleteAccount({{ uid }}, {{account.account_id}})">Delete Account</button>
+      <h2 style="margin-bottom:20px">: {{ account.available_equity }}</h2>
+    {% endif %}
   {% endfor %}
 </div>
 {% endblock %}
+
+<script>
+  function deleteAccount(uid, accountId) {
+    console.log('deleting account');
+    console.log('uid: ' + uid);
+    console.log('account_id: ' + accountId);
+
+    var req = new XMLHttpRequest();
+    var url = "http://localhost:8080/" + uid  + "/" + accountId;
+    req.open("DELETE", url, false);
+    req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    req.send();
+    var result = req.responseText;
+
+    console.log('result: ' + result);
+
+    window.location.reload();
+  }
+</script>

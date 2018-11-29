@@ -16,8 +16,6 @@ def user_login():
             flash("Invalid User Credential")
             return render_template("login.html")
         
-        session['accounts'] = manage.get_user_accounts(ret['uid'])['accounts']
-
         return redirect(url_for('users.user_page', uid=ret['uid'], user=user))
 
     return render_template("login.html")
@@ -36,9 +34,9 @@ def user_page():
     print('user_page')
     print('uid: ', uid)
     print('user: ', user)
-    print('session[accounts]: ', session['accounts'])
+    accounts = manage.get_user_accounts(uid)['accounts']
 
-    return render_template('user_page.html', uid=uid, user=user, accounts=session['accounts'])
+    return render_template('user_page.html', uid=uid, user=user, accounts=accounts)
     
 @users.route('/users', methods=['POST', 'DELETE', 'GET'])
 def user_manipulation():
