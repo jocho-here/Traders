@@ -1,368 +1,59 @@
 <!DOCTYPE html>
+
+{% block content %}
+<div class="container">
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+
+    {% block page_content %}{% endblock %}
+</div>
+{% endblock %}
+
 <html lang="en" >
-<style>
-.slider {
-    -webkit-appearance: none;
-    width: 30%;
-    height: 10px;
-    border-radius: 5px;   
-    background: #d3d3d3;
-    outline: none;
-    opacity: 0.7;
-}
-
-.slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%; 
-    background: #4CAF50;
-    cursor: pointer;
-}
-
-.sellWindow {
-	display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    padding-top: 100px; /* Location of the box */
-    left: 0;
-    top: 0;
-    width: 30%; /* Full width */
-    height: 30%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-}
-
-.sellContent {
-    background-color: #fefefe;
-    margin: auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-}
-
-</style>
-
 <head>
-  <meta charset="UTF-8">
-  <title>Account</title>
-      <link rel="stylesheet" href="">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>User Page</title>
+  <link rel="stylesheet" href="../static/assets/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
+  <link rel="stylesheet" href="../static/assets/fonts/ionicons.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/css/pikaday
+.min.css">
 </head>
 
-<div id="sell-modal" class="sellWindow">
+<body>
+  <h1 align="center">{{ user }}'s accounts</h1>
 
-  <!-- Modal content -->
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <p>Some text in the Modal..</p>
+  <div style="margin-bottom:40px;margin-top:40px;" align="center">
+    <form align="center" method="post" action="{{ url_for('accounts.page_create_account') }}">
+      <input align="center" name="uid" id="uid" type="hidden" value={{ uid }}></input>
+      <input align="center" name="user" id="user" type="hidden" value={{ user }}></input>
+      <button align="center" class="btn btn-primary"
+              type="submit">Create Account
+      </button>
+    </form>
   </div>
 
-</div>
-
-<body>
-<a class = "text"><pre> <u>From</u>          <u>To</u><br/></pre></a>
-    <select id="currency_from">
-      <option value="usd">usd</option>
-      <option value="gbp">gbp</option>
-      <option value="chn">chn</option>
-      <option value="eur">eur</option>
-      <option value="eur">ger</option>
-    </select>
-    <select id="currency_to">
-      <option value="gbp">gbp</option>
-      <option value="usd">usd</option>
-      <option value="chn">chn</option>
-      <option value="eur">eur</option>
-      <option value="ger">ger</option>
-    </select>
-</br></br>
-<button onclick="getExchangeRate()">Find</button>
-
-</br></br>
-<a> <b> Rate Table </b> </a> (Virtual Time : <a id="virtual-time">None</a>)  
-<div>
-  <input type="range" min="1" max="100" value="49" class="slider" id="timer">
-  <input type="number" id="volume"/>
-  <button type="button" onclick="directBuy()"> Buy </button>
-</div>
-
-
-<br/><br/>
-<table  id='rate_table'>
-    <th>From</th>
-    <th>To</th> 
-    <th>Time</th>
-    <th>Rate</th>
-    <th>Volumn</th>
-    <th>Buy</th>
-</table> 
-
-<div id="chartContainer" style="height: 36%; width: 64%;"></div>    
-    
-
-
-</br></br></br>
-
-<div style="position: absolute; top:20%; right:20%;">
-<b> Position Table </b> 
-<br/><br/>
-<table  id='position_table'>
-</table> 
-</div>
-
 </body>
-<script>
-const origin = location.origin;
-const accounts = {{ account_info | tojson | safe }};
-console.log(accounts);
-const uid = {{ uid }} , accid = accounts[0]['id'];
-
-//TODO: Simply use globla to keep track of exchange rates, should be changed to a better way later on
-var exchangeRates, from, to, positions; 
-
-startUp();
-
-function startUp () {
-//TODO: On page load, fill table, and do something else
-    getExchangeRate();
-    update_position_table();
-}
-
-
-function getExchangeRate() {
-//TODO: change from, to parameter to match selection
-    var c_from = document.getElementById( "currency_from" );
-    from = c_from.options[ c_from.selectedIndex ].value;
-    var c_to = document.getElementById( "currency_to" );
-    to = c_to.options[ c_to.selectedIndex ].value;
-
-    var from_time = "2018-01-01_11:11:11", to_time = "2018-11-08_11:11:11";
-
-    var url = origin + '/exchangerates/currency_from/' + from + '/currency_to/' + to + '/from_time/' + from_time + '/to_time/' + to_time;
-
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-           var response = JSON.parse( xhttp.responseText );
-           if (response['status']) {
-           //console.log();
-            //fillExchangeTable(response);
-            data = response['exchange_rates'];
-              renderChart();
-           } 
-        }
-    };
-    xhttp.open('GET', url, true);
-    xhttp.send();
-}
-
-function fillExchangeTable(rows) { 
-    var table = document.getElementById("rate_table");
-    reset_table(table);
-    exchangeRates = rows['exchange_rates'];
-    from = rows['currency_from'], to = rows['currency_to'];
-    
-    for (var i=0; i<exchangeRates.length; i++) {
-        var row = table.insertRow(i);
-        var cell0 = row.insertCell(0);
-        var cell1 = row.insertCell(1);
-        var cell2 = row.insertCell(2);
-        var cell3 = row.insertCell(3);
-        var cell4 = row.insertCell(4);
-        var cell5 = row.insertCell(5);
-        cell0.innerHTML = from;
-        cell1.innerHTML = to;
-        cell2.innerHTML = exchangeRates[i]['time'];
-        cell3.innerHTML = exchangeRates[i]['bid'];
-        cell4.innerHTML = '<input type=number id=volume_' + i + ' />';
-        cell5.innerHTML = '<button type="button" onclick="buy('+i+')"> Buy </button>';
-    }
-}
-
-function directBuy() {
-	var volume = Number(document.getElementById('volume').value);
-	if ( volume && Number.isInteger(volume) ) {
-		var url = origin + '/users/' + uid + '/accounts/' + accid + '/positions';
-		var params = {
-		  "currency_from": from,
-		  "currency_to": to,
-		  "time": data[currentInterval]['time'],
-		  "position_type": "long",
-		  "volume": volume
-		};
-		var xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function() {
-		    if (this.readyState == 4 && this.status == 200) {
-		       var response = JSON.parse( xhttp.responseText );
-		       if (!response['status']) {
-		            console.log(response('message'));
-		       } else {
-		            //Why update again? Position could be partially filled.
-		            update_position_table();
-		       }
-		    }
-		};
-		xhttp.open('POST', url, true);
-		xhttp.send(JSON.stringify(params));
-	}
-}
-
-function update_position_table() {
-    var table = document.getElementById("position_table");
-    reset_table(table);
-    var url = origin + '/users/' + uid + '/accounts/' + accid + '/positions';
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-           var response = JSON.parse( xhttp.responseText );
-           if ( response['status'] ) {
-                positions = response['positions'];
-                for (var i=0; i<positions.length; i++) {
-                    var row = table.insertRow(i);
-                    var cell0 = row.insertCell(0);
-                    var cell1 = row.insertCell(1);
-                    var cell2 = row.insertCell(2);
-                    cell0.innerHTML = positions[i]['currency_from'] + '_' + positions[i]['currency_to'];
-                    cell1.innerHTML = positions[i]['volume'];
-                    cell2.innerHTML = '<button type="button" onclick="sell('+i+')"> Close </button>';
-                }
-           } 
-        }
-    };
-    xhttp.open('GET', url, true);
-    xhttp.send();    
-}
-
-function sell(index) {
-    //TODO: 
-    console.log(positions[index]);
-}
-
-
-// helper function reset table, leaves header alone
-function reset_table(table) {
-        for (var i=0; i<table.rows.length; i++) {
-            table.deleteRow(0);
-        }
-}
-
-
-//convert mysql dateime to javascript dates
-function datetimeToDate(datetime) {
-	return CanvasJS.formatDate(new Date(datetime), "hh:mm TT")
-}
-
-
-var duration = 3600; //in seconds
-//interval, how many seconds a point; prerender how many points, 
-var interval = 30, prerender = 60, updateInterval = 1000;
-var renderer; //timer
-/**
-	current: current point index,
-	currentInterval: current second, 
-	updateInterval: update frequecy in ms
-	dataLength: number of visible data 
- */
-var current = prerender-1, currentInterval = prerender * interval, dataLength = 3600; 
-var chart, data = [], dps = [];
- 
-function renderChart() {
-// prerender data for half and hour
-for (var i=0; i<prerender; i++) {
-	dps.push({
-		label: datetimeToDate(data[i*interval]['time']),
-		y: data[i*interval]['bid']
-	});
-}
-
-for (var i=prerender; i<duration/interval; i++) {
-	dps.push({
-		label: datetimeToDate(data[i*interval]['time']),
-		y: null
-	});
-}
-
-chart = new CanvasJS.Chart("chartContainer", {
-	zoomEnabled: true,
-	title :{
-		text: from + '-' + to
-	},
-	axisX:{      
-            valueFormatString: "hh:mm TT" ,
-    },
-	axisY: {
-		includeZero: false
-	},      
-	data: [{
-		markerType: "none", 
-		type: "line",
-		dataPoints: dps
-	}]
-});
-
-
-updateChart();
-renderer = setInterval(function(){updateChart()}, updateInterval);
-}
-
-var updateChart = function () {
-	currentInterval ++;
-	if (currentInterval > current * interval)
-		current ++;
-	dps[current-1]["y"] = data[currentInterval]['bid'];
-	chart.render();
-	
-	if (currentInterval >= dataLength) {
-		clearInterval(renderer);
-	}
-	document.getElementById("virtual-time").innerHTML=data[currentInterval]['time'];
-	document.getElementById("timer").value = Math.floor(currentInterval / duration * 100);
-};
-
-//Speed up time flow
-function speedUpInterval() {
-	updateInterval /= 2;
-	clearInterval(renderer);
-	renderer = setInterval(function(){updateChart()}, updateInterval);
-}
-
-var slider = document.getElementById("timer");
-
-slider.oninput = function() {
-  var scale = this.value / 100;
-  var renderedPoints = Math.floor(scale * duration);
-  var index = Math.floor(scale * duration / interval);
-  if (current > index) {
-  	for(var i=index; i<current; i++) {
-		dps[i]["y"] = null;  	
-  	}
-  } else {
-  	for(var i=current; i<index; i++) {
-		dps[i]["y"] = data[i*interval]['bid'];  	
-  	}  
-  }
-  current = index;
-  chart.render();
-  currentInterval = renderedPoints;
-  document.getElementById("virtual-time").innerHTML=data[renderedPoints-1]['time'];
-
-}
-
-slider.onmouseup = function() {
-  if ( currentInterval < dataLength ) 
-  renderer = setInterval(function(){updateChart()}, updateInterval);
-}
-
-slider.onmousedown = function() {
-    clearInterval(renderer);
-}
-
-</script>
-
-
-<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
-
-
-
+{% block body %}
+<div align="center" class="container">
+  {% for account in accounts %}
+  <form align="center" method="post" action="{{ url_for('accounts.account_page') }}">
+    <input name="uid" id="uid" type="hidden" value={{ uid }}></input>
+    <input name="account_id" id="account_id" type="hidden" value={{ account.account_id }}></input>
+    <input name="account_name" id="account_name" type="hidden" value={{ account.account_name }}></input>
+    <button
+      type="submit"
+      class="btn btn-primary btn-lg"
+      style="background-color: rgb(71,171,244);">{{ account.account_name }}
+    </button>
+    <h2 style="margin-bottom:20px">: {{ account.available_equity }}</h2>
+    <h2 style="margin-bottom:20px">: {{ account }}</h2>
+  </form>
+  {% endfor %}
+</div>
+{% endblock %}
