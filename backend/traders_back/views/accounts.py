@@ -1,52 +1,57 @@
-from flask import jsonify, Blueprint, render_template, request, redirect, url_for
+from flask import session, flash, jsonify, Blueprint, render_template, request, redirect, url_for
 import traders_back.utils as utils
+import traders_back.manage as manage
 
 accounts = Blueprint('accounts', __name__)
 
 
-'''
-@pages.route('/profile', methods=['GET', 'POST'])
-def user_profile():
-	if request.method == 'GET':
-		print(request)
-		uid = request.args.get('uid')
-		if not uid:
-			return "usage: </profile?uid=INT>"
-		return render_template("user_index.html", logged="true") #Not sure if this is the right thing to do.. The line below was the original.
-		return 'user_id: ' + str(uid)
-	elif request.method == 'POST':
-		info = request.form
-		accID = info['account']
-		return redirect(url_for('pages.user_account', accID=accID))
-@pages.route('/account')
-def user_account():
-	accID = request.args.get('accID')
-	if not accID:
-		return "usage: </account?accID=INT"
-	return render_template("user_account.html")
-'''
+@accounts.route('/account_page', methods=['POST'])
+def account_page():
+    req = utils.get_req_data()
+    print('----------------------')
+    print('account_page')
+    print('req: ', req)
 
-@accounts.route('/create_account')
+    uid = req['uid']
+    account_id = req['account_id']
+    account_name = req['account_name']
+
+    print('uid: ', uid)
+    print('account_id: ', account_id)
+    print('account_name: ', account_name)
+    print('----------------------')
+
+@accounts.route('/create_account', methods=['POST'])
 def page_create_account():
-	return render_template('Create/index.html')
+    req = utils.get_req_data()
+
+    return render_template('create_account.html', uid=req['uid'], user=req['user'])
 
 @accounts.route('/account')
 def account_apis():
     return "Accounts"
-	
+
 @accounts.route('/new_account', methods=['POST'])
 def create_new_account():
-    uid = int(request.args.get('uid'))
-    name = utils.get_req_data()['account_name']
-    equity = utils.get_req_data()['equity']
+    req = utils.get_req_data()
+
+    uid = int(req['uid'])
+    name = req['account_name']
+    equity = req['equity']
     ret = manage.create_account(uid, name, equity) 
+
     if not ret['status']:
-        return jsonify(ret)
+        flash("Account name already taken")
+        return render_template('create_account.html', uid=uid)
+
     query = 'SELECT email FROM Users WHERE id=%s'
     email = utils.getter_db(query, (uid))['result'][0]['email']
     ret['user_email'] = email
-    ret['account_id'] = ret.pop('last_insert_index')
-    return jsonify(ret)
+
+    session['accounts'] = manage.get_user_accounts(uid)['accounts']
+
+    flash("Successfully created a new account")
+    return redirect(url_for('users.user_page', uid=uid, user=req['user']))
     	
 @accounts.route('/<int:uid>/<int:accid>', methods=['GET', 'DELETE'])
 def sub_account(uid, accid):

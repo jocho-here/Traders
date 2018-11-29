@@ -1,4 +1,5 @@
-from flask import request, jsonify, Blueprint, render_template, redirect, url_for, flash
+from flask import session, request, jsonify, Blueprint, render_template, redirect, url_for, flash
+import json
 
 import traders_back.utils as utils
 import traders_back.manage as manage
@@ -16,9 +17,12 @@ def user_login():
         ret = manage.sign_in(user, pswd)
 
         if not ret['status']:
+            flash("Invalid User Credential")
             return render_template("login.html")
+        
+        session['accounts'] = manage.get_user_accounts(ret['uid'])['accounts']
 
-        return redirect('/user_page/%s'%ret['uid'])
+        return redirect(url_for('users.user_page', uid=ret['uid'], user=user))
 
 def get_account_info_help(uid):
     res = manage.get_user_accounts(uid)
@@ -29,14 +33,16 @@ def get_account_info_help(uid):
 @users.route('/user_page')
 def user_page():
     uid = request.args.get('uid')
-    acc = get_account_info_help(uid)
-    return render_template('user_page.html', uid=uid, account_info=acc)
-    
-@users.route('/user_page/<int:uid>')
-def user_page_without_chart(uid):
-    acc = get_account_info_help(uid)
-    return render_template('Account/index.html', uid=uid, account_info=acc)
+    user = request.args.get('user')
+    accounts = request.args.get('accounts')
 
+    print('user_page')
+    print('uid: ', uid)
+    print('user: ', user)
+    print('session[accounts]: ', session['accounts'])
+
+    return render_template('user_page.html', uid=uid, user=user, accounts=session['accounts'])
+    
 @users.route('/users', methods=['POST', 'DELETE', 'GET'])
 def user_manipulation():
     rtn_val = {'status':False}
