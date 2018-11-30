@@ -404,7 +404,6 @@ var updateChart = function () {
            document.getElementById("virtual-time").innerHTML=curTime;
            document.getElementById('rate').innerHTML='$'+res['ask'];
            chart.render();
-           accChart.render();
         } 
     };   
 	xmlhttp.open("POST", "/chart_point");
@@ -412,8 +411,21 @@ var updateChart = function () {
 	xmlhttp.send(JSON.stringify(req));
 };
 
-function update_account_balance() {
-	
+function retrieve_account_balance() {
+	var req = {
+		"account_id": 2,
+		"end_time": virtualTime,
+	}
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+        	var ret = JSON.parse(xmlhttp.responseText);
+        	console.log(ret);
+        }
+    };   
+	xmlhttp.open("POST", "/account_balance");
+	xmlhttp.setRequestHeader("Content-Type", "application/json");
+	xmlhttp.send(JSON.stringify(req));
 }
 
 function renderCandle() {
@@ -457,6 +469,7 @@ function onDiffChange() {
 function update_current_datapoints() {
 	updateChart();
 	updateCandle();
+	retrieve_account_balance();
 }
 
 function onGraphChange() {

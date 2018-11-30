@@ -122,3 +122,47 @@ def script_create_new_account():
 
 
     return jsonify(ret)
+    
+    
+@accounts.route('/account_balance', methods=['POST'])
+def get_account_balance():
+	#get earnings of open positions based on current price before given time
+	req = utils.get_req_data()
+	time = req['end_time']
+	accid = req['account_id']
+	q =\
+	"""
+	SELECT currency_from, currency_to, sum(volume*(latest-ask)) as earnings 
+	FROM (
+		SELECT E.ask as latest, T2.* from ExchangeRates E 
+		NATURAL JOIN (
+			SELECT max(id) as id 
+			FROM (
+				select E.id,  E.currency_from, E.currency_to from ExchangeRates E 
+				join (
+					select DISTINCT E.currency_from, currency_to 
+					from Positions P 
+					join ExchangeRates E 
+					on P.open_rate_id = E.id 
+					where P.position_status='open' 
+					and P.account_id=%s
+				) P 
+				on E.currency_from=P.currency_from 
+				and E.currency_to=P.currency_to 
+				where time < %s 
+			) T 
+			GROUP BY currency_from, currency_to) T1 
+			JOIN (
+				select P.volume, E.ask, E.currency_from, E.currency_to 
+				from Positions P 
+				JOIN ExchangeRates E on E.id=P.open_rate_id 
+				where P.position_status='open'
+				and P.account_id=%s
+			) T2 
+			on E.currency_from=T2.currency_from 
+			and E.currency_to = T2.currency_to
+		) F 
+		group by currency_from, currency_to;
+	"""
+	ret = utils.getter_db(q, (accid, time, accid))
+	return jsonify(ret['result'])
