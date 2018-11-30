@@ -15,13 +15,15 @@ def account_page():
     uid = req['uid']
     account_id = req['account_id']
     account_name = req['account_name']
+    account_equity = req['account_equity']
 
     print('uid: ', uid)
     print('account_id: ', account_id)
     print('account_name: ', account_name)
+    print('account_equity: ', account_equity)
     print('----------------------')
 
-    return render_template('Account/index.html', uid=uid, account_id=account_id, account_name=account_name)
+    return render_template('Account/index.html', uid=uid, account_id=account_id, account_name=account_name, account_equity=account_equity)
 
 @accounts.route('/create_account', methods=['POST'])
 def page_create_account():
@@ -60,11 +62,12 @@ def sub_account(uid, accid):
     ret = {"status":False}
     if request.method == 'GET':
 	    query = '''SELECT U.email, 
-	            A.account_name, A.open_date, A.close_date
+	            A.account_name, A.open_date, A.close_date, A.available_equity
 		        FROM Users U JOIN Accounts A ON U.id=A.user_id
 		        WHERE U.id=%s AND A.id=%s'''
 	    ret = utils.getter_db(query, (uid, accid))
 	    info = ret.pop('result')
+	    print(info)
 	    if len(info) == 0:
 	        ret['status'] = False
 	        ret['message'] = utils.ERR_ACCOUNT_ID
@@ -75,6 +78,7 @@ def sub_account(uid, accid):
 	        return jsonify(ret)
 	    ret['user_email'] = info['email']
 	    ret['account_name'] = info['account_name']
+	    ret['available_equity'] = info['available_equity']
 	    ret['open_date'] = info['open_date']
 	    ret['user_id'] = uid
 	    return jsonify(ret)

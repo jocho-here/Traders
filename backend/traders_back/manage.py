@@ -153,9 +153,11 @@ def create_position(account_id, currency_from, currency_to, time, position_type,
     available_equity = accinfo["available_equity"]
     
     result = get_exchange_rates(currency_from, currency_to, time=time)
+    print('create_position: result: ', result)
     total_cost = float(volume)*(1/result["exchange_rate"]["bid"])
     if currency_from != "USD":
         conversion_result = get_exchange_rates("USD", currency_from, time=time)
+        print('create_position: conversion_result: ', conversion_result)
         total_cost  = total_cost*(1/conversion_result["exchange_rate"]["bid"])
     if total_cost > available_equity:
         rtn_val['status'] = False
@@ -170,6 +172,7 @@ def create_position(account_id, currency_from, currency_to, time, position_type,
         if result['status']:
             rtn_val['status'] = True
             rtn_val['message'] = "Successfully created a new position"
+            rtn_val['account_equity'] = get_account_info(account_id)['account_info']['available_equity']
             rtn_val['position_id'] = result['last_insert_index']
         else:
             rtn_val = result
@@ -212,6 +215,8 @@ def close_position(position_id, close_rate_time):
 
             if result['status']:
                 rtn_val['status'] = True
+                rtn_val['account_equity'] = get_account_info(account_id)['account_info']['available_equity']
+                print(rtn_val['account_equity'])
                 rtn_val['message'] = "Successfully closed position"
             else:
                 rtn_val['status'] = False
