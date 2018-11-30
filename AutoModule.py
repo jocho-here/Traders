@@ -205,7 +205,7 @@ class Connection(object):
         return
     
   
-class RandomPos(Position):
+class DiscretePos(Position):
     def __init__(self, account, currency_from, currency_to, volume, init_time, position_status=POS_WAITING ):
         super().__init__(account, currency_from, currency_to, volume, init_time, position_status)
         self.position_type = "Discrete"
