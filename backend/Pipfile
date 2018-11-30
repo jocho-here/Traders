@@ -7,6 +7,8 @@ name = "pypi"
 pip = "==18.0"
 flask = "*"
 pymysql = "*"
+pandas = "*"
+requests = "*"
 
 [dev-packages]
 traders-back = {editable = true, path = "."}
