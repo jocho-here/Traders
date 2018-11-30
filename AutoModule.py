@@ -39,6 +39,9 @@ class Account(object):
         self.account_name = account_name
         self.available_equity = available_equity
         self.positions = positions
+        self.waiting_positions = []
+        self.open_positions = []
+        self.closed_positions = []
         self.connection = connection
         self.account_id = account_id
         if create:
@@ -54,8 +57,16 @@ class Account(object):
             return
         self.account_id = data["account_id"]
       
-    def new_position(self, currency_from, currency_to, volume, init_time, position_status=POS_WAITING):
-        p = Position(self, currency_from, currency_to, volume, init_time, position_status)
+    def new_position(self, PClass, currency_from, currency_to, volume, init_time, position_status=POS_WAITING):
+        p = PClass(self, currency_from, currency_to, volume, init_time, position_status)
+        self.waiting_positions.append(p)
+        return p
+        
+    def show(self, rate):
+        for p in self.waiting_positions + self.open_positions:
+            if rate.currency_from == p.currency_from and rate.currency_to == p.currency_to:
+                 if p.position_status is POS_WAITING or (p.position_status is POS_OPEN and rate.time > p.open_rate.time):
+                     p.show_rate(rate)
         
 class Position(object):
     
@@ -71,32 +82,43 @@ class Position(object):
     def show_rate(self, rate):
         pass # This is where the position rule is implemented
         
-    def open_pos(self, dt):
-        url = "{}/users/{}/accounts/{}/positions".format(self.connection.hostname,
+    def open_pos(self, rate):
+        url = "{}/users/{}/accounts/{}/positions".format(self.account.connection.hostname,
                                                            self.account.connection.uid,
                                                            self.account.account_id)
         data = {"currency_from": self.currency_from, 
                 "currency_to": self.currency_to, 
                 "volume": self.volume,
-                "time": dt,
+                "time": rate.time,
                 "position_type": self.position_type}
+        
         req = requests.post(url=url, data=data)
         data = req.json()
         if not data['status']:
             print(data['message'])
             return
+        self.position_status = POS_OPEN
+        self.open_rate = rate
         self.position_id = data['position_id']
+        self.account.waiting_positions.remove(self)
+        self.account.open_positions.append(self)
+        print("Opening position @ {}".format(rate))
     
-    def close_pos(self, dt):
-        url = "{}/users/{}/accounts/{}/positions/{}".format(self.connection.hostname,
+    def close_pos(self, rate):
+        url = "{}/users/{}/accounts/{}/positions/{}".format(self.account.connection.hostname,
                                                            self.account.connection.uid,
                                                            self.account.account_id,
                                                            self.position_id)
-        data = {"close_rate_time": dt} 
-        req = requests.post(url=url, data=data)
-        data = req.json()
-        if not data['status']:
-            print(data['message'])
+        data = {"close_rate_time": rate.time} 
+        req = requests.put(url=url, data=data)
+#        data = req.json()
+#        if not data['status']:
+#            print(data['message'])
+        self.position_status = POS_CLOSED
+        self.close_rate = rate
+        self.account.open_positions.remove(self)
+        self.account.closed_positions.append(self)
+        print("Closing position @ {}".format(rate))
         return
         
         
@@ -182,7 +204,21 @@ class Connection(object):
         rate_supplier_thread.join()
         return
     
-      
+  
+class RandomPos(Position):
+    def __init__(self, account, currency_from, currency_to, volume, init_time, position_status=POS_WAITING ):
+        super().__init__(account, currency_from, currency_to, volume, init_time, position_status)
+        self.position_type = "Discrete"
+        
+    def show_rate(self, rate):
+        if self.position_status is POS_WAITING:
+            self.open_pos(rate)
+        elif self.position_status is POS_OPEN:
+            if rate.time - timedelta(hours=2) > self.open_rate.time:
+                self.close_pos(rate)
+        return    
+    
+    
 def test():
     conn = Connection("http://localhost:8080", "bkille3", "abcde")
     s = datetime.now() - timedelta(days=356)
@@ -192,8 +228,10 @@ def test():
     rates = conn.get_rates("USD", "GBP", s, e)
     for index, rate in enumerate(rates):
         print(index, ':', rate)
-        acc.op
-        if index > 10:
+        if len(acc.open_positions) == 0:
+            p = acc.new_position(RandomPos, "USD", "GBP", 1000, datetime.now(), position_status=POS_WAITING)
+        acc.show(rate)
+        if index > 1000:
             break
 test()
         
