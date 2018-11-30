@@ -32,34 +32,20 @@
 <body>
     <nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient">
         <div class="container"><a class="navbar-brand logo" href="#">Trader Capital</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse"
-                id="navbarNav">
-                <ul class="nav navbar-nav ml-auto"></ul>
-                
-                <div class="dropdown">
-				  <button class="btn btn-primary" type="button">Accounts</button>
-				  <div id="dropdown-accounts" class="dropdown-content">
-				  </div>
-				</div>
-				
-                <button class="btn btn-primary" type="button" style="background-color: rgb(77,255,14);" onclick="window.location='/create_user';">Create Account</button><button class="btn btn-primary" type="button" style="background-color: rgb(244,127,20);">Delete Account</button>
-                <button
-                    class="btn btn-primary" type="button" style="background-color: rgb(112,181,211);">History</button><button class="btn btn-primary" type="button" style="background-color: rgb(255,14,144);">Log Out</button></div>
+            {{ account_name }}    
+		<button class="btn btn-primary" type="button" style="background-color: rgb(255,14,144);">Log Out</button></div>
         </div>
     </nav>
     
 
     <main class="page lanidng-page">
-    <script>
+  <script>
   const account_id = {{ account_id }};
   const account_name = {{ account_name }};
-	const uid = {{ uid }};
-	//load accounts
-	var dropdown = document.getElementById("dropdown-accounts");
-  dropdown.innerHTML += '<a href="/account/'+account_id+'">'+account_name+'</a></br>';
+  const uid = {{ uid }};
+  //load accounts
 	
 	var userID = uid;
-	var ID = 1;
 	var temp = {"email":"mcho1@illinois.edu","password":"jo1"}
 	var save = function(){
     	var start = document.getElementById("start").value;
@@ -76,65 +62,7 @@
     	localStorage.setItem("granType", granType);
     	window.location.reload()
     }
-var ID = localStorage.getItem("ID")
-console.log(localStorage);
-if(ID == null){
-	ID = 1;
-}
 
-
-function changeAccount(cID){
-	localStorage.setItem("ID", cID);	
-	window.location.reload();
-}
-var xmlHttp = new XMLHttpRequest();
-var url  = "http://localhost:8080/signin"
-xmlHttp.open("POST", url, false); // false for synchronous request
-xmlHttp.setRequestHeader("Content-Type", "Accept: application/json;charset=UTF-8");
-xmlHttp.overrideMimeType("application/json");
-var cpy;
-function deleteAccount(userID, aid){
-	var u = "http://localhost:8080/" + userID + "/" + aid;
-	console.log(u)
-	var request = new XMLHttpRequest();
-	request.open("DELETE", u, false);
-	request.send(null);
-	window.location.reload();
-	return request.responseText;
-}
-
-function createAccount(acname, userID){
-	var req = new XMLHttpRequest();
-	var nme = document.getElementById("nme").value;
-	var url = "http://localhost:8080/new_account?uid=" + userID;
-    req.open("POST", url, false); // false for synchronous request
-    req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    req.send(JSON.stringify({"account_name": nme}));
-    var result = req.responseText;
-    window.location.reload()
-    return result;
-}
-
-xmlHttp.onreadystatechange = function(e) {//Call a function when the state changes.
-    if(xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-    	var res  = xmlHttp.responseText;
-    	var resp = JSON.parse(res);
-        var IDS  = resp.account_ids;
-        cpy = IDS.slice();
-        userID   = resp.user_id;
-        var Req = new XMLHttpRequest();
-        for(var i = 0; i < IDS.length; i++){
-    		Req.open("GET", "http://localhost:8080/" + userID + "/" + IDS[i], false);
-    		Req.send(null);
-    		var ret = JSON.parse(Req.responseText);
-    		if(ret['account_name'] != undefined){
-        		document.write("<tr> <td> <center> " + ret['account_name'] + " </center> </td> <td> <button type='button' onclick='changeAccount(" + IDS[i] +  ")'> View </button></td>" +
-        		"<td> <button type='button' onclick='deleteAccount(" + userID + ", "+ IDS[i] +  ")'> Remove </button></td> </tr>")
-        	}
-        }
-        document.write("</table><br/>&nbsp;&nbsp;&nbsp;&nbsp;<input id = 'nme' type='text'> &nbsp;&nbsp; <button type='button' onclick='createAccount(" + IDS.length+ ", " + userID + ")'> Create Account </button>")
-    }
-}
     </script>
     <br/><br/>
     <a class = "text"><pre>  <u>From</u>       <u>To</u><br/></pre></a>
@@ -218,6 +146,20 @@ xmlHttp.onreadystatechange = function(e) {//Call a function when the state chang
  var curr_t = localStorage.getItem("curr_to");
  var g = localStorage.getItem("gran");
  var gTa = localStorage.getItem("granType")
+
+
+window.onload = function () {
+var xmlHttp = new XMLHttpRequest();
+xmlHttp.onreadystatechange = function () {
+var result = JSON.parse(xmlHttp.responseText);
+console.log(result);
+document.getElementById('account_equity_b').innerHTML = "Account Balance: " + result.available_equity;
+
+}
+xmlHttp.open("GET", "http://localhost:8080/" + {{ uid }} + "/" + {{ account_id }}, false);
+xmlHttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+xmlHttp.send();
+}
  function httpGet(theUrl)
 {
     var xmlHttp = new XMLHttpRequest();
@@ -235,13 +177,16 @@ function purchase(row)
     var time = document.getElementById('rate_table').rows[row].cells[2].innerText;
     var volume = document.getElementById('volume_'+row).value;
     var xmlHttp = new XMLHttpRequest();
-    var url = "http://localhost:8080/users/" +userID+ "/accounts/" + ID + "/positions";
+    var url = "http://localhost:8080/users/" + {{uid}}+ "/accounts/" + {{ account_id }} + "/positions";
     xmlHttp.open("POST", url, false); // false for synchronous request
     xmlHttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     var toSend = JSON.stringify({"volume":volume, "currency_from":curr_from,"currency_to":curr_to,"time":time,"position_type":"long"})
     xmlHttp.send(toSend);
-    var result = xmlHttp.responseText;
+    var result = JSON.parse(xmlHttp.responseText);
     window.location.reload()
+    //document.getElementById('account_equity_b').innerHTML = "Account Balance: " + result.account_equity;
+    console.log('purchase');
+    console.log(result);
     return result;
 }
 
@@ -252,12 +197,13 @@ function sell(row)
     var open_rate_id = document.getElementById('open_rate_id_' + row).value;
     
     var xmlHttp = new XMLHttpRequest();
-    var url = "http://localhost:8080/users/"+userID+"/accounts/" + ID+ "/positions/" + position_id;
+    var url = "http://localhost:8080/users/"+ {{ uid }} +"/accounts/" + {{account_id}}+ "/positions/" + position_id;
 
     xmlHttp.open("PUT", url, false); // false for synchronous request
     xmlHttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xmlHttp.send(JSON.stringify({"close_rate_time":close_time, "open_rate_id":open_rate_id}));
-    var result = xmlHttp.responseText;
+    var result = JSON.parse(xmlHttp.responseText);
+    //document.getElementById('account_equity_b').innerHTML = "Account Balance: " + result.account_equity;
     window.location.reload()
     return result;
 }
@@ -265,7 +211,7 @@ var curr = c.exchange_rates[0].time;
 var prev = c.exchange_rates[0].time;
  </script>
  		<br/>
-        <b> &nbsp;&nbsp;&nbsp;&nbsp;Account Balance: </b>
+        <b id="account_equity_b"></b>
         <br/>
         <section class="block-intro">
         <small class="form-text text-muted" style="background-color: #b6ffaf;"><strong><center>Rate Table</center></strong></small>
@@ -324,7 +270,7 @@ for(var i = 0; i < c.exchange_rates.length; i++){
 }
 var f = c;
 
-ret = httpGet("http://localhost:8080/users/"+userID+"/accounts/"+ID+"/positions");
+ret = httpGet("http://localhost:8080/users/"+ {{ uid }} +"/accounts/"+ {{ account_id }} +"/positions");
 c = JSON.parse(ret);
 </script>
                     </tbody>

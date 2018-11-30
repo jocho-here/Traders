@@ -26,9 +26,25 @@
 </head>
 
 <body>
-  <h1 align="center">{{ user }}'s accounts</h1>
+    <nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient">
+        <div class="container"><a class="navbar-brand logo" href="#">Trader Capital</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            
 
-  <div style="margin-bottom:40px;margin-top:40px;" align="center">
+                <h1 align="center">{{ user }}'s accounts</h1>
+                
+				<button class="btn btn-primary" type="button" style="background-color: rgb(255,14,144);">Log Out</button></div>
+        </div>
+    </nav>
+
+
+</body>
+{% block body %}
+<div align="center" class="container">
+	<br/>
+	<br/>
+<br/>
+<br/><br/>
+    <div style="margin-bottom:40px;margin-top:40px;" align="center">
     <form align="center" method="post" action="{{ url_for('accounts.page_create_account') }}">
       <input align="center" name="uid" id="uid" type="hidden" value={{ uid }}></input>
       <input align="center" name="user" id="user" type="hidden" value={{ user }}></input>
@@ -37,16 +53,13 @@
       </button>
     </form>
   </div>
-
-</body>
-{% block body %}
-<div align="center" class="container">
   {% for account in accounts %}
     {% if account.close_date is none %}
       <form align="center" method="post" action="{{ url_for('accounts.account_page') }}">
         <input name="uid" id="uid" type="hidden" value={{ uid }}></input>
         <input name="account_id" id="account_id" type="hidden" value={{ account.account_id }}></input>
         <input name="account_name" id="account_name" type="hidden" value={{ account.account_name }}></input>
+        <input name="account_equity" id="account_equity" type="hidden" value={{ account.available_equity }}></input>
         <button
           type="submit"
           class="btn btn-primary btn-lg"

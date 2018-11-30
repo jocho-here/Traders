@@ -10,6 +10,7 @@ positions = Blueprint('positions', __name__)
 def position_management(user_id, account_id):
     rtn_val = {}
     req = utils.get_req_data()
+    print(req)
 
     # TODO:Check if user_id and account_id are together
     if request.method == 'GET':
