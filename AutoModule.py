@@ -56,6 +56,7 @@ class Account(object):
       
     def new_position(self, currency_from, currency_to, volume, init_time, position_status=POS_WAITING):
         p = Position(self, currency_from, currency_to, volume, init_time, position_status)
+        
 class Position(object):
     
     def __init__(self, account, currency_from, currency_to, volume, init_time, position_status=POS_WAITING):
