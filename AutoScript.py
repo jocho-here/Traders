@@ -21,8 +21,6 @@ def __main__():
     accounts.append((conn.create_account("Patient_acc{}".format(random.randint(0,100000))), AutoModule.PatientPos))
     rates = conn.get_rates("USD", "GBP", s, e)
     for index, rate in enumerate(rates):
-        print(rate)
-        continue
         for acc, PObj in accounts:
             if len(acc.open_positions) == 0:
                 p = acc.new_position(PObj, "USD", "GBP", 1000, datetime.now(), position_status=AutoModule.POS_WAITING)

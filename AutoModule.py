@@ -58,6 +58,13 @@ class Account(object):
             return
         self.account_id = data["account_id"]
       
+    def get_account_info(self):
+        url = "{}/{}/{}".format(self.connection.hostname, self.connection.uid, self.account_id)
+        req = requests.get(url)
+        data = req.json()
+        print(data)
+        return data
+
     def new_position(self, PClass, currency_from, currency_to, volume, init_time, position_status=POS_WAITING):
         p = PClass(self, currency_from, currency_to, volume, init_time, position_status)
         self.waiting_positions.append(p)
@@ -120,6 +127,8 @@ class Position(object):
         self.account.open_positions.remove(self)
         self.account.closed_positions.append(self)
         print("Account {} is closing position @ {}".format(self.account.account_name, rate))
+        acc_info = self.account.get_account_info()
+        print("Account {} value is now {}".format(self.account.account_name, acc_info["available_equity"])) 
         return
         
         
