@@ -102,3 +102,23 @@ def get_accounts():
         FROM Users U JOIN Accounts A on U.Id=A.USER_ID'''
     ret = utils.getter_db(q)
     return jsonify(ret)
+
+
+# =============================================================================
+#  AutoModule stuff
+# =============================================================================
+@accounts.route('/script_new_account', methods=['POST'])
+def script_create_new_account():
+    req = utils.get_req_data()
+
+    uid = int(req['uid'])
+    name = req['account_name']
+    equity = req['equity']
+    ret = manage.create_account(uid, name, equity) 
+
+    query = 'SELECT email FROM Users WHERE id=%s'
+    email = utils.getter_db(query, (uid))['result'][0]['email']
+    ret['user_email'] = email
+
+
+    return jsonify(ret)
