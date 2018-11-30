@@ -95,3 +95,13 @@ def create_user():
 
     flash("Successfully created a new user")
     return redirect(url_for('users.user_login'))
+    
+@users.route('/script_login', methods=['GET', 'POST'])
+def script_login():
+    if request.method == 'POST':
+        req = utils.get_req_data()
+        user = req['userName']
+        pswd = req['passWord']
+        ret = manage.sign_in(user, pswd)
+
+        return jsonify(ret)
