@@ -219,19 +219,3 @@ class RandomPos(Position):
         return    
     
     
-def test():
-    conn = Connection("http://localhost:8080", "bkille3", "abcde")
-    s = datetime.now() - timedelta(days=356)
-    e = datetime.now()
-    
-    acc = conn.create_account("TEST{}".format(random.randint(0,100)))
-    rates = conn.get_rates("USD", "GBP", s, e)
-    for index, rate in enumerate(rates):
-        print(index, ':', rate)
-        if len(acc.open_positions) == 0:
-            p = acc.new_position(RandomPos, "USD", "GBP", 1000, datetime.now(), position_status=POS_WAITING)
-        acc.show(rate)
-        if index > 1000:
-            break
-test()
-        
