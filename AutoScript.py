@@ -16,13 +16,17 @@ def __main__():
     s = datetime.now() - timedelta(days=356)
     e = datetime.now()
     
-    acc = conn.create_account("TEST{}".format(random.randint(0,100000)))
+    accounts = []
+    accounts.append((conn.create_account("Discrete_acc{}".format(random.randint(0,100000))), AutoModule.DiscretePos))
+    accounts.append((conn.create_account("Patient_acc{}".format(random.randint(0,100000))), AutoModule.PatientPos))
     rates = conn.get_rates("USD", "GBP", s, e)
     for index, rate in enumerate(rates):
-        print(index, ':', rate)
-        if len(acc.open_positions) == 0:
-            p = acc.new_position(AutoModule.DiscretePos, "USD", "GBP", 1000, datetime.now(), position_status=AutoModule.POS_WAITING)
-        acc.show(rate)
+        print(rate)
+        continue
+        for acc, PObj in accounts:
+            if len(acc.open_positions) == 0:
+                p = acc.new_position(PObj, "USD", "GBP", 1000, datetime.now(), position_status=AutoModule.POS_WAITING)
+            acc.show(rate)
         if index > 1000:
             break
 

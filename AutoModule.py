@@ -50,6 +50,7 @@ class Account(object):
     def create_account(self):
         url = "{}/script_new_account".format(self.connection.hostname)
         data = {"uid": self.connection.uid, "account_name": self.account_name, "equity": self.available_equity}
+        print(data)
         req = requests.post(url=url, data=data)
         data = req.json()
         if not data["status"]:
@@ -102,7 +103,7 @@ class Position(object):
         self.position_id = data['position_id']
         self.account.waiting_positions.remove(self)
         self.account.open_positions.append(self)
-        print("Opening position @ {}".format(rate))
+        print("Account {} is opening position @ {}".format(self.account.account_name, rate))
     
     def close_pos(self, rate):
         url = "{}/users/{}/accounts/{}/positions/{}".format(self.account.connection.hostname,
@@ -118,7 +119,7 @@ class Position(object):
         self.close_rate = rate
         self.account.open_positions.remove(self)
         self.account.closed_positions.append(self)
-        print("Closing position @ {}".format(rate))
+        print("Account {} is closing position @ {}".format(self.account.account_name, rate))
         return
         
         
@@ -219,3 +220,16 @@ class DiscretePos(Position):
         return    
     
     
+class PatientPos(Position):
+    def __init__(self, account, currency_from, currency_to, volume, init_time, position_status=POS_WAITING ):
+        super().__init__(account, currency_from, currency_to, volume, init_time, position_status)
+        self.position_type = "Patient"
+        
+    def show_rate(self, rate):
+        if self.position_status is POS_WAITING:
+            self.open_pos(rate)
+        elif self.position_status is POS_OPEN:
+            if rate.time - timedelta(hours=480) > self.open_rate.time or \
+                    rate.ask/rate.bid > 1.000001:
+                self.close_pos(rate)
+        return    
