@@ -47,6 +47,7 @@ def get_exchange_rates(currency_from, currency_to, from_time=None, to_time=None,
     elif from_time and to_time:
         modified_query = raw_queries.get_exchange_rate + '\nWHERE currency_from = %s AND currency_to = %s'
         modified_query += ' AND time >= %s AND time <= %s'
+        modified_query += ' ORDER BY time ASC ' 
         data.append(from_time)
         data.append(to_time)
 

@@ -68,7 +68,7 @@ def specific_position(user_id, account_id, position_id):
     if request.method == 'GET':
         rtn_val = manage.get_position_from_id(position_id)
     elif request.method == 'PUT':
-        if 'close_rate_time' in req and 'open_rate_id' in req:
+        if 'close_rate_time' in req:
             rtn_val = manage.close_position(position_id, req['close_rate_time'])
         else:
             rtn_val['status'] = False

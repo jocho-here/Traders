@@ -3,7 +3,7 @@ import traders_back.utils as utils
 import traders_back.manage as manage
 
 accounts = Blueprint('accounts', __name__)
-
+import datetime
 
 @accounts.route('/account_page', methods=['POST'])
 def account_page():
@@ -106,14 +106,34 @@ def get_accounts():
         FROM Users U JOIN Accounts A on U.Id=A.USER_ID'''
     ret = utils.getter_db(q)
     return jsonify(ret)
+
+
+# =============================================================================
+#  AutoModule stuff
+# =============================================================================
+@accounts.route('/script_new_account', methods=['POST'])
+def script_create_new_account():
+    req = utils.get_req_data()
+
+    uid = int(req['uid'])
+    name = req['account_name']
+    equity = req['equity']
+    ret = manage.create_account(uid, name, equity) 
+
+    query = 'SELECT email FROM Users WHERE id=%s'
+    email = utils.getter_db(query, (uid))['result'][0]['email']
+    ret['user_email'] = email
+
+
+    return jsonify(ret)
     
     
 @accounts.route('/account_balance', methods=['POST'])
 def get_account_balance():
 	#get earnings of open positions based on current price before given time
 	req = utils.get_req_data()
-	time = req['end_time']
 	accid = req['account_id']
+	time = datetime.datetime.strptime(req['end_time'], '%Y-%m-%dT%H:%M:%S.%fZ')
 	q =\
 	"""
 	SELECT currency_from, currency_to, sum(volume*(latest-ask)) as earnings 
@@ -148,5 +168,17 @@ def get_account_balance():
 		) F 
 		group by currency_from, currency_to;
 	"""
-	ret = utils.getter_db(q, (accid, time, accid))
-	return jsonify(ret['result'])
+	ret = utils.getter_db(q, (accid, time, accid))['result']
+	q =\
+	"""
+	SELECT available_equity FROM Accounts where id=%s
+	"""
+	equity = utils.getter_db(q, (accid))['result'][0]['available_equity']
+	for e in ret:
+		equity += e['earnings']
+		
+	
+	return jsonify({
+		'accid': accid,
+		'balance': equity
+		})

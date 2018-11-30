@@ -55,12 +55,12 @@ const origin = location.origin;
 const uid = 1, accid = 1;
 //TODO: Simply use globla to keep track of exchange rates, should be changed to a better way later on
 var from = "USD", to = "JPY", virtualTime, virtualStart, accChart, accPt = [];
+var curTime;
 
 window.onload = function () {
 	getVirtualTime();
 	loadExchangeRates();
     update_position_table();
-    render_account_balance();
 };
 
 function loadExchangeRates () {
@@ -101,8 +101,9 @@ function loadRateChart() {
 				var linePoints = JSON.parse(xhttp.responseText);
 				if (linePoints.length > 0) {
 					loadRateCandle(linePoints, params);
+				} else {
+					onGraphChange();
 				}
-			//	onGraphChange();
 			}
 		};
 		xhttp.open("POST", "/chart_history", true);
@@ -161,7 +162,6 @@ function fillData() {
 	 	});
 	 	virtualStart.setTime(virtualStart.getTime() + granularity);
 	}
-	render_account_balance();
 }
 
 function render_account_balance() {
@@ -210,7 +210,7 @@ function directSell(index) {
 	    if (this.readyState == 4 && this.status == 200) {
 	       var response = JSON.parse( xhttp.responseText );
 	       if (!response['status']) {
-	            console.log(response('message'));
+	            console.log(response['message']);
 	       } else {
 		        update_position_table();
 		  }
@@ -373,7 +373,7 @@ var updateChart = function () {
 	xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
            var res = JSON.parse(xmlhttp.responseText);
-           var curTime = new Date(res['time']);
+           curTime = new Date(res['time']);
            var ask = res['ask'];
          //  if (dpcandle[current]['y'] == null) {
          //  		dpcandle[current]['y'] = [ask,,,];
@@ -412,15 +412,19 @@ var updateChart = function () {
 };
 
 function retrieve_account_balance() {
+	if (curTime === undefined) return;
 	var req = {
-		"account_id": 2,
-		"end_time": virtualTime,
+		"account_id": accid,
+		"end_time": curTime,
 	}
+
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
         	var ret = JSON.parse(xmlhttp.responseText);
-        	console.log(ret);
+			accPt[current]['y'] = ret['balance'];
+			render_account_balance();
+			accChart.render();
         }
     };   
 	xmlhttp.open("POST", "/account_balance");
@@ -464,6 +468,7 @@ function onDiffChange() {
 	} else {
 		renderChart();
 	}
+	render_account_balance();
 }
 
 function update_current_datapoints() {
