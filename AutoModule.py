@@ -62,7 +62,6 @@ class Account(object):
         url = "{}/{}/{}".format(self.connection.hostname, self.connection.uid, self.account_id)
         req = requests.get(url)
         data = req.json()
-        print(data)
         return data
 
     def new_position(self, PClass, currency_from, currency_to, volume, init_time, position_status=POS_WAITING):
@@ -111,6 +110,8 @@ class Position(object):
         self.account.waiting_positions.remove(self)
         self.account.open_positions.append(self)
         print("Account {} is opening position @ {}".format(self.account.account_name, rate))
+        acc_info = self.account.get_account_info()
+        print("Account {} value is now {}".format(self.account.account_name, acc_info["available_equity"])) 
     
     def close_pos(self, rate):
         url = "{}/users/{}/accounts/{}/positions/{}".format(self.account.connection.hostname,
